@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}Writing Task{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Task 1: Group chat</h1>
+<p class="text-muted text-center">Please complete the writing task below and submit your response.</p>
+
+<div class="container my-4">
+  <div class="row">
+    <!-- First Card -->
+    <div class="col-md-6">
+      <div class="card border-primary">
+          <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                  <i class="fas fa-comments"></i> Written online communication 🖋️
+              </h5>
+          </div>
+          <div class="card-body">
+              <h6 class="text-primary"><strong>Instructions</strong></h6>
+              <p>You are talking to your classmates about a group project for school. Write a message to your group and:</p>
+              <ul>
+                  <li><strong>respond to Lilly</strong></li>
+                  <li><strong>ask the group to help you with something</strong></li>
+              </ul>
+              <p>⏱️ You should spend about <strong><span class="text-primary">5 minutes</span></strong> on this task.</p>
+              <p>⚠️ You should write about <strong><span class="text-danger">70 words</span></strong> (maximum 90 words).</p>
+          </div>
+      </div>
+    </div>
+
+    <!-- Second Card -->
+    <div class="col-md-6">
+      <div class="card">
+          <div class="card-header bg-info text-white">
+              <h5 class="mb-0"><strong>Group project: Organise a book club</strong></h5>
+          </div>
+          <div class="card-body">
+              <div class="mb-3">
+                  <p class="mb-1"><strong class="text-primary">Lilly</strong></p>
+                  <div class="alert alert-secondary">
+                      I'm worried about time. We only have two weeks and there's so much to do!
+                  </div>
+              </div>
+              <div class="mb-3">
+                  <p class="mb-1"><strong class="text-info"></strong></p>
+                  <div class="alert alert-secondary">
+                      ...
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<form method="POST" action="{{ url_for('submit') }}" class="mt-4">
+    <div class="mb-3">
+        <label for="writingTask" class="form-label">Your Response</label>
+        <textarea class="form-control" id="writingTask" name="writingTask" rows="5" placeholder="Write your response here..."></textarea>
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>
+{% endblock %}

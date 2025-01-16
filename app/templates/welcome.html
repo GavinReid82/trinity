@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Welcome to the ISE Digital English Proficiency Exam</h1>
+<p class="text-center">This test evaluates your ability to write clearly and effectively in English. You will be given a task to complete within the provided space.</p>
+<p class="text-center">When you're ready, click the button below to begin.</p>
+
+<div class="d-grid gap-2 col-6 mx-auto mb-3">
+    <a href="{{ url_for('task_1_group_chat') }}" class="btn btn-primary btn-lg">Begin Task 1</a>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto mb-3">
+    <a href="{{ url_for('task_2_essay') }}" class="btn btn-primary btn-lg">Begin Task 2 (essay)</a>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto">
+    <a href="{{ url_for('task_2_report') }}" class="btn btn-primary btn-lg">Begin Task 2 (report)</a>
+</div>
+{% endblock %}
