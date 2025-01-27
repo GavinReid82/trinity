@@ -3,22 +3,32 @@
 {% block title %}Speaking Task 1 - Question {{ question_number }}{% endblock %}
 
 {% block content %}
-<h1 class="text-center">Speaking Task 1 - Question {{ question_number }}</h1>
-<p class="text-center">{{ question }}</p>
+<h1 class="text-center mb-3">Speaking Task 1 - Question {{ question_number }}</h1>
 
-<div class="text-center">
-    <button id="start-recording" class="btn btn-primary">Start Recording</button>
-    <button id="stop-recording" class="btn btn-danger" disabled>Stop Recording</button>
-    <span id="timer">30</span> seconds left
+<div class="card mx-auto mt-4 p-4 shadow" style="max-width: 600px;">
+    <p class="text-center fw-bold mb-3">{{ question }}</p>
+
+    <div class="text-center">
+        <button id="start-recording" class="btn btn-primary">Start Recording</button>
+        <button id="stop-recording" class="btn btn-danger" disabled>Stop Recording</button>
+        <button id="countdown-timer" class="btn btn-secondary text-center" disabled style="width: 150px;">
+            <span id="countdown-text">30</span> seconds left
+        </button>
+        
+    </div>
 </div>
 
-<audio id="audio-player" controls class="mt-3 d-block mx-auto"></audio>
 
-<div class="d-flex justify-content-center">
+<audio id="audio-player" controls class="mt-3 d-block mx-auto d-none"></audio>
+
+
+<div class="d-flex justify-content-center mt-5">
     <form method="POST" action="{{ url_for('speaking_task_submit') }}" enctype="multipart/form-data">
         <input type="hidden" name="question_number" value="{{ question_number }}">
         <input type="hidden" name="audio_data" id="audio-data">
-        <button type="submit" class="btn btn-success mt-3">Submit Recording</button>
+        <button type="submit" id="submit-btn" class="btn btn-success mt-3">
+            Submit Recording
+        </button>        
     </form>
 </div>
 
@@ -35,7 +45,7 @@
         let countdown = 30;
         let interval = setInterval(() => {
             countdown--;
-            document.getElementById('timer').innerText = countdown;
+            document.getElementById('countdown-timer').innerText = countdown;
             if (countdown <= 0) {
                 mediaRecorder.stop();
                 clearInterval(interval);
@@ -58,11 +68,17 @@
         };
     };
 
-    document.getElementById('stop-recording').onclick = function() {
-        mediaRecorder.stop();
-        document.getElementById('start-recording').disabled = false;
-        document.getElementById('stop-recording').disabled = true;
+        document.getElementById('stop-recording').onclick = function() {
+            mediaRecorder.stop();
+            document.getElementById('start-recording').disabled = false;
+            document.getElementById('stop-recording').disabled = true;
     };
+        document.querySelector('form').onsubmit = function() {
+            let submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = 'Submitting... Please wait';
+            submitBtn.disabled = true; // Disable the button to prevent multiple clicks
+    };
+    
 </script>
 
 {% endblock %}

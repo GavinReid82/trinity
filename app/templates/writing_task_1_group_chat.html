@@ -61,7 +61,14 @@
         <textarea class="form-control" id="writingTask1" name="writingTask1" rows="5" placeholder="Write your response here..."></textarea>
     </div>
     <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" id="submit-btn" class="btn btn-primary">Submit</button>
     </div>
 </form>
+<script>
+    document.querySelector('form').onsubmit = function() {
+        let submitBtn = document.getElementById('submit-btn');
+        submitBtn.innerText = 'Submitting... Please wait';
+        submitBtn.disabled = true; // Disable the button to prevent multiple clicks
+    };
+</script>
 {% endblock %}

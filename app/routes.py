@@ -1,5 +1,5 @@
 import json
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from app import app
 from openai import OpenAI
 import base64
@@ -154,6 +154,12 @@ def speaking_task_1_q3():
 def speaking_task_submit():
     question_number = int(request.form['question_number'])
     audio_data = request.form['audio_data']
+
+    print(f"Received audio_data: {audio_data}")
+
+    # Validate the audio_data
+    if not audio_data or "," not in audio_data:
+        return jsonify({"error": "Invalid or missing audio data"}), 400
 
     # Define questions
     questions = {
