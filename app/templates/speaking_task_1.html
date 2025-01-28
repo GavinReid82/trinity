@@ -3,14 +3,13 @@
 {% block title %}Speaking Task 1 - Question {{ question_number }}{% endblock %}
 
 {% block content %}
-<h1 class="text-center mb-3">Speaking Task 1 - Question {{ question_number }}</h1>
+<h1 class="text-center mb-3">Answering questions: {{ question_number }}</h1>
 
 <div class="card mx-auto mt-4 p-4 shadow" style="max-width: 600px;">
     <p class="text-center fw-bold mb-3">{{ question }}</p>
 
     <div class="text-center">
         <button id="start-recording" class="btn btn-primary">Start Recording</button>
-        <button id="stop-recording" class="btn btn-danger" disabled>Stop Recording</button>
         <button id="countdown-timer" class="btn btn-secondary text-center" disabled style="width: 150px;">
             <span id="countdown-text">30</span> seconds left
         </button>
@@ -18,16 +17,12 @@
     </div>
 </div>
 
-
-<audio id="audio-player" controls class="mt-3 d-block mx-auto d-none"></audio>
-
-
 <div class="d-flex justify-content-center mt-5">
     <form method="POST" action="{{ url_for('speaking_task_submit') }}" enctype="multipart/form-data">
         <input type="hidden" name="question_number" value="{{ question_number }}">
         <input type="hidden" name="audio_data" id="audio-data">
         <button type="submit" id="submit-btn" class="btn btn-success mt-3">
-            Submit Recording
+            Submit recording and get feedback
         </button>        
     </form>
 </div>
@@ -35,50 +30,107 @@
 <script>
     let mediaRecorder;
     let audioChunks = [];
+    let isRecordingStopped = false; // Track whether recording has stopped
+    let countdownInterval; // Variable to hold the countdown interval
 
-    document.getElementById('start-recording').onclick = async function() {
-        let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        document.getElementById('start-recording').disabled = true;
-        document.getElementById('stop-recording').disabled = false;
-        let countdown = 30;
-        let interval = setInterval(() => {
-            countdown--;
-            document.getElementById('countdown-timer').innerText = countdown;
-            if (countdown <= 0) {
-                mediaRecorder.stop();
-                clearInterval(interval);
-            }
-        }, 1000);
+    document.getElementById('start-recording').onclick = async function () {
+        try {
+            audioChunks = []; // Clear previous recordings
+            isRecordingStopped = false; // Reset flag
+            let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            document.getElementById('start-recording').disabled = true;
 
-        mediaRecorder.ondataavailable = event => {
-            audioChunks.push(event.data);
-        };
+            // Start countdown timer
+            let countdown = 30;
+            countdownInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('countdown-timer').innerText = countdown;
 
-        mediaRecorder.onstop = () => {
-            let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            let audioUrl = URL.createObjectURL(audioBlob);
-            document.getElementById('audio-player').src = audioUrl;
-            let reader = new FileReader();
-            reader.readAsDataURL(audioBlob);
-            reader.onloadend = function () {
-                document.getElementById('audio-data').value = reader.result;
+                if (countdown <= 0) {
+                    mediaRecorder.stop(); // Stop recording when timer ends
+                    clearInterval(countdownInterval);
+                    isRecordingStopped = true; // Update flag
+                }
+            }, 1000);
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
             };
-        };
+
+            mediaRecorder.onstop = () => {
+                console.log("Recording stopped");
+                let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                console.log("Blob created:", audioBlob);
+
+                if (audioBlob.size === 0) {
+                    console.error("Audio blob is empty. Recording failed.");
+                    alert("Recording failed. Please try again.");
+                    return;
+                }
+
+                let reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+
+                reader.onloadend = function () {
+                    const base64Audio = reader.result;
+                    console.log("Generated base64 audio data:", base64Audio);
+
+                    // Populate the hidden input field
+                    document.getElementById('audio-data').value = base64Audio;
+                    console.log("Hidden input field updated with base64 data");
+
+                    // Change button text to indicate submission
+                    const submitBtn = document.getElementById('submit-btn');
+                    submitBtn.innerText = "Submitting... Please wait";
+                    submitBtn.disabled = true; // Prevent multiple clicks
+                    submitBtn.classList.add("btn-secondary"); // Change button colour to indicate submission
+
+                    // Submit the form automatically after processing
+                    console.log("Submitting form automatically");
+                    document.querySelector('form').submit();
+                };
+            };
+        } catch (error) {
+            alert("Unable to access the microphone. Please check your settings.");
+            console.error("Microphone access error:", error);
+        }
     };
 
-        document.getElementById('stop-recording').onclick = function() {
-            mediaRecorder.stop();
-            document.getElementById('start-recording').disabled = false;
-            document.getElementById('stop-recording').disabled = true;
+    document.querySelector('form').onsubmit = function (event) {
+        // Stop the countdown timer
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            console.log("Countdown timer stopped");
+        }
+
+        // Change button text and state to indicate submission
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.innerText = "Submitting... Please wait";
+        submitBtn.disabled = true; // Prevent multiple clicks
+        submitBtn.classList.add("btn-secondary"); // Change button colour to indicate submission
+
+        // If the recording is still active, stop it and prevent immediate submission
+        if (!isRecordingStopped && mediaRecorder && mediaRecorder.state === "recording") {
+            event.preventDefault(); // Prevent immediate submission
+            console.log("Stopping recording early because user clicked submit");
+            mediaRecorder.stop(); // This will trigger the `onstop` function to finalize and submit the form
+            isRecordingStopped = true;
+        } else {
+            // Ensure audio data exists before submission
+            const audioData = document.getElementById('audio-data').value;
+
+            if (!audioData || !audioData.startsWith("data:audio/wav;base64,")) {
+                event.preventDefault(); // Stop form submission
+                alert("Audio data is missing or invalid. Please record again.");
+                submitBtn.innerText = "Submit and Get Feedback"; // Reset button text
+                submitBtn.disabled = false; // Re-enable the button
+                submitBtn.classList.remove("btn-secondary"); // Reset button colour
+                return false;
+            }
+        }
     };
-        document.querySelector('form').onsubmit = function() {
-            let submitBtn = document.getElementById('submit-btn');
-            submitBtn.innerText = 'Submitting... Please wait';
-            submitBtn.disabled = true; // Disable the button to prevent multiple clicks
-    };
-    
 </script>
 
 {% endblock %}

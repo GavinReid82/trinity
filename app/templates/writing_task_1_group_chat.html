@@ -3,8 +3,8 @@
 {% block title %}Writing Task{% endblock %}
 
 {% block content %}
-<h1 class="text-center">Task 1: Group chat</h1>
-<p class="text-muted text-center">Please complete the writing task below and submit your response.</p>
+<h1 class="text-center">Written online communication</h1>
+<!-- <p class="text-muted text-center">Please complete the writing task below and submit your response.</p> -->
 
 <div class="container my-4">
   <div class="row">
@@ -57,11 +57,10 @@
 
 <form method="POST" action="{{ url_for('writing_task_1_submit') }}" class="mt-4">
     <div class="mb-3">
-        <label for="writingTask1" class="form-label">Your Response</label>
         <textarea class="form-control" id="writingTask1" name="writingTask1" rows="5" placeholder="Write your response here..."></textarea>
     </div>
     <div class="d-grid gap-2">
-        <button type="submit" id="submit-btn" class="btn btn-primary">Submit</button>
+        <button type="submit" id="submit-btn" class="btn btn-primary">Submit and get feedback</button>
     </div>
 </form>
 <script>

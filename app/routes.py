@@ -28,7 +28,7 @@ def reading():
 
 @app.route('/writing')
 def writing():
-    return render_template('writing.html')
+    return render_template('writing_task_1_group_chat.html')
 
 @app.route('/speaking')
 def speaking():
@@ -127,6 +127,14 @@ def speaking_tips():
 @app.route('/speaking_task_2')
 def speaking_task_2():
     return render_template('speaking_task_2.html')
+
+@app.route('/speaking_task_3')
+def speaking_task_3():
+    return render_template('speaking_task_3.html')
+
+@app.route('/speaking_task_4')
+def speaking_task_4():
+    return render_template('speaking_task_4.html')
 
 @app.route('/speaking_task_1_q1')
 def speaking_task_1_q1():
