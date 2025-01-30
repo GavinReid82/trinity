@@ -13,7 +13,6 @@
         <button id="countdown-timer" class="btn btn-secondary text-center" disabled style="width: 150px;">
             <span id="countdown-text">30</span> seconds left
         </button>
-        
     </div>
 </div>
 
@@ -27,110 +26,6 @@
     </form>
 </div>
 
-<script>
-    let mediaRecorder;
-    let audioChunks = [];
-    let isRecordingStopped = false; // Track whether recording has stopped
-    let countdownInterval; // Variable to hold the countdown interval
-
-    document.getElementById('start-recording').onclick = async function () {
-        try {
-            audioChunks = []; // Clear previous recordings
-            isRecordingStopped = false; // Reset flag
-            let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start();
-            document.getElementById('start-recording').disabled = true;
-
-            // Start countdown timer
-            let countdown = 30;
-            countdownInterval = setInterval(() => {
-                countdown--;
-                document.getElementById('countdown-timer').innerText = countdown;
-
-                if (countdown <= 0) {
-                    mediaRecorder.stop(); // Stop recording when timer ends
-                    clearInterval(countdownInterval);
-                    isRecordingStopped = true; // Update flag
-                }
-            }, 1000);
-
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
-
-            mediaRecorder.onstop = () => {
-                console.log("Recording stopped");
-                let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                console.log("Blob created:", audioBlob);
-
-                if (audioBlob.size === 0) {
-                    console.error("Audio blob is empty. Recording failed.");
-                    alert("Recording failed. Please try again.");
-                    return;
-                }
-
-                let reader = new FileReader();
-                reader.readAsDataURL(audioBlob);
-
-                reader.onloadend = function () {
-                    const base64Audio = reader.result;
-                    console.log("Generated base64 audio data:", base64Audio);
-
-                    // Populate the hidden input field
-                    document.getElementById('audio-data').value = base64Audio;
-                    console.log("Hidden input field updated with base64 data");
-
-                    // Change button text to indicate submission
-                    const submitBtn = document.getElementById('submit-btn');
-                    submitBtn.innerText = "Submitting... Please wait";
-                    submitBtn.disabled = true; // Prevent multiple clicks
-                    submitBtn.classList.add("btn-secondary"); // Change button colour to indicate submission
-
-                    // Submit the form automatically after processing
-                    console.log("Submitting form automatically");
-                    document.querySelector('form').submit();
-                };
-            };
-        } catch (error) {
-            alert("Unable to access the microphone. Please check your settings.");
-            console.error("Microphone access error:", error);
-        }
-    };
-
-    document.querySelector('form').onsubmit = function (event) {
-        // Stop the countdown timer
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            console.log("Countdown timer stopped");
-        }
-
-        // Change button text and state to indicate submission
-        const submitBtn = document.getElementById('submit-btn');
-        submitBtn.innerText = "Submitting... Please wait";
-        submitBtn.disabled = true; // Prevent multiple clicks
-        submitBtn.classList.add("btn-secondary"); // Change button colour to indicate submission
-
-        // If the recording is still active, stop it and prevent immediate submission
-        if (!isRecordingStopped && mediaRecorder && mediaRecorder.state === "recording") {
-            event.preventDefault(); // Prevent immediate submission
-            console.log("Stopping recording early because user clicked submit");
-            mediaRecorder.stop(); // This will trigger the `onstop` function to finalize and submit the form
-            isRecordingStopped = true;
-        } else {
-            // Ensure audio data exists before submission
-            const audioData = document.getElementById('audio-data').value;
-
-            if (!audioData || !audioData.startsWith("data:audio/wav;base64,")) {
-                event.preventDefault(); // Stop form submission
-                alert("Audio data is missing or invalid. Please record again.");
-                submitBtn.innerText = "Submit and Get Feedback"; // Reset button text
-                submitBtn.disabled = false; // Re-enable the button
-                submitBtn.classList.remove("btn-secondary"); // Reset button colour
-                return false;
-            }
-        }
-    };
-</script>
+<script src="{{ url_for('static', filename='js/speaking_task_1.js') }}"></script>
 
 {% endblock %}
