@@ -87,6 +87,7 @@ def writing_task_1_submit():
                 "I'm worried about time. We only have two weeks and there's so much to do!\n"
 
                 "Your job is principally to ensure that the candidate has followed the task instructions and, if they haven't, suggest what they could do better."
+                "For example, and this is IMPORTANT, the task is asking the candidate to participate in ORGANISING a book club, not just writing about a book club in general. The emphasis is on organising a club. "
                 "Structure your feedback into three sections: "
                 "1. General Comment, 2. What You Did Well (bullet points), and 3. What You Could Improve (bullet points). "
                 "Return the feedback as JSON with keys: 'general_comment', 'did_well', and 'could_improve'."
