@@ -7,15 +7,15 @@ app = Flask(__name__)
 # Set file upload limit to 100MB
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 
-# Production CORS: Allow only trusted domains (Northpass and Trinity courses)
+# ✅ Allow requests from Northpass (both preview and production)
 CORS(app, resources={r"/*": {"origins": ["https://*.northpass.com", "https://courses.trinitycollege.com"]}})
 
 @app.after_request
 def add_headers(response):
-    # X-Frame-Options: Modern browsers do not fully support ALLOW-FROM, so use CSP instead
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'  # No need for ALLOWALL or ALLOW-FROM
+    # ✅ Correct X-Frame-Options for compatibility with Northpass preview
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
-    # Content Security Policy to allow iframe embedding from specific domains
+    # ✅ Allow iframe embedding using CSP (Content Security Policy)
     response.headers['Content-Security-Policy'] = (
         "frame-ancestors 'self' https://*.northpass.com https://courses.trinitycollege.com"
     )
