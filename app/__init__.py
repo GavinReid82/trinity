@@ -12,15 +12,17 @@ CORS(app, resources={r"/*": {"origins": ["https://*.northpass.com", "https://cou
 
 @app.after_request
 def add_headers(response):
-    # ✅ Allow microphone access using valid syntax for Permissions-Policy
+    # ✅ Correct Permissions-Policy header syntax
     response.headers['Permissions-Policy'] = (
         "microphone=(self), microphone=(https://courses.trinitycollege.com), microphone=(https://app.northpass.com)"
     )
 
-    # ✅ Keep existing security headers for iframe embedding
+    # ✅ Frame embedding security
     response.headers['Content-Security-Policy'] = (
         "frame-ancestors 'self' https://courses.trinitycollege.com https://app.northpass.com"
     )
+
+    # ✅ Allow iframe embedding within the same origin or trusted domains
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
     return response
