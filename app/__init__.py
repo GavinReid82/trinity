@@ -12,9 +12,9 @@ CORS(app, resources={r"/*": {"origins": ["https://*.northpass.com", "https://cou
 
 @app.after_request
 def add_headers(response):
-    # ✅ Correct Permissions-Policy header syntax
+    # ✅ Minimal Permissions-Policy header with correct syntax
     response.headers['Permissions-Policy'] = (
-        "microphone=(self), microphone=(https://courses.trinitycollege.com), microphone=(https://app.northpass.com)"
+        "microphone=(self), microphone=(*)"
     )
 
     # ✅ Frame embedding security
@@ -26,6 +26,7 @@ def add_headers(response):
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
     return response
+
 
 
 # Defer importing routes to avoid circular imports
