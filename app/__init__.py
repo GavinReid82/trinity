@@ -7,18 +7,21 @@ app = Flask(__name__)
 # Set file upload limit to 100MB
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 
-# ✅ Allow requests from Northpass (both preview and production)
+# ✅ CORS settings: Allow requests from Northpass and Trinity courses
 CORS(app, resources={r"/*": {"origins": ["https://*.northpass.com", "https://courses.trinitycollege.com"]}})
 
 @app.after_request
 def add_headers(response):
-    # ✅ Correct X-Frame-Options for compatibility with Northpass preview
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    # ✅ Permissions-Policy: Allow microphone access from any domain within the iframe
+    response.headers['Permissions-Policy'] = "microphone=(self https://*.northpass.com https://courses.trinitycollege.com)"
 
-    # ✅ Allow iframe embedding using CSP (Content Security Policy)
+    # ✅ Content Security Policy: Allow iframe embedding from Northpass and Trinity courses
     response.headers['Content-Security-Policy'] = (
         "frame-ancestors 'self' https://*.northpass.com https://courses.trinitycollege.com"
     )
+
+    # ✅ X-Frame-Options: Allow iframe embedding (no conflicts)
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
     return response
 
