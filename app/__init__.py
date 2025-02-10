@@ -8,15 +8,18 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 
 # Enable CORS and allow embedding from Northpass
-CORS(app, resources={r"/*": {"origins": ["https://*.northpass.com"]}})
+CORS(app, resources={r"/*": {"origins": ["https://*.northpass.com", "https://courses.trinitycollege.com"]}})
 
 @app.after_request
 def add_headers(response):
-    # Allow embedding via iframe
-    response.headers['X-Frame-Options'] = 'ALLOW-FROM https://my-org.northpass.com'
+    # Allow embedding within both preview and production Northpass environments
+    response.headers['X-Frame-Options'] = 'ALLOW-FROM https://courses.trinitycollege.com'
     
-    # Content Security Policy (CSP) for iframe embedding
-    response.headers['Content-Security-Policy'] = "frame-ancestors 'self' https://*.northpass.com"
+    # Allow iframe embedding using Content Security Policy (CSP)
+    response.headers['Content-Security-Policy'] = (
+        "frame-ancestors 'self' https://*.northpass.com https://courses.trinitycollege.com"
+    )
+
     return response
 
 # Defer importing routes to avoid circular imports
