@@ -12,18 +12,19 @@ CORS(app, resources={r"/*": {"origins": ["https://*.northpass.com", "https://cou
 
 @app.after_request
 def add_headers(response):
-    # ✅ Permissions-Policy: Allow microphone access from any domain within the iframe
-    response.headers['Permissions-Policy'] = "microphone=(self https://*.northpass.com https://courses.trinitycollege.com)"
-
-    # ✅ Content Security Policy: Allow iframe embedding from Northpass and Trinity courses
-    response.headers['Content-Security-Policy'] = (
-        "frame-ancestors 'self' https://*.northpass.com https://courses.trinitycollege.com"
+    # ✅ Allow microphone access using valid syntax for Permissions-Policy
+    response.headers['Permissions-Policy'] = (
+        "microphone=(self), microphone=(https://courses.trinitycollege.com), microphone=(https://app.northpass.com)"
     )
 
-    # ✅ X-Frame-Options: Allow iframe embedding (no conflicts)
+    # ✅ Keep existing security headers for iframe embedding
+    response.headers['Content-Security-Policy'] = (
+        "frame-ancestors 'self' https://courses.trinitycollege.com https://app.northpass.com"
+    )
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
     return response
+
 
 # Defer importing routes to avoid circular imports
 from app import routes
