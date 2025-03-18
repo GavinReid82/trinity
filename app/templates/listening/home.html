@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}Listening{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-5">ISE Digital: Listening</h1>
+
+<div class="d-grid gap-2 col-6 mx-auto mb-3">
+    <a href="{{ url_for('listening.listening_tips') }}" class="btn btn-primary btn-lg">Listening Tips</a>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto mb-3">
+    <a href="{{ url_for('listening.listening_talk') }}" class="btn btn-primary btn-lg">Listening to a Talk</a>
+</div>
+{% endblock %}

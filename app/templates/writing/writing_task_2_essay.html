@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block title %}Writing Task 2 - Essay{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>Writing from sources <i class="bi bi-pencil"></i></h1>
+            <h2>Instructions</h2>
+            <div class="alert alert-info">
+                <p>⏱ You should spend about 35 minutes on this task.</p>
+                <p>⚠️ You should write about 250 words (maximum 300 words).</p>
+            </div>
+            <div class="alert alert-warning">
+                <p>◗ You MUST use ideas from the texts AND your own ideas.</p>
+                <p>◗ You MUST NOT copy from the texts.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left column: Source Texts -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3>Source Texts</h3>
+                </div>
+                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
+                    <div class="mb-4">
+                        <h4>Text A</h4>
+                        <h5>Tips to hire the best candidate</h5>
+                        <p class="text-muted">Business Today, Stephen Moore</p>
+                        <p>In today's competitive market, hiring managers must make sure their recruitment strategy brings in the best employees. Most managers look for candidates with many years of experience. After all, it is said that it takes about 10,000 hours of training for someone to become a specialist in their field. But here are some suggestions for what else managers should consider when hiring new staff.</p>
+                        <ul>
+                            <li>Avoid candidates who have changed career many times during their working life. They might not be reliable.</li>
+                            <li>Check their personality, as they must fit with the rest of your staff.</li>
+                            <li>Consider candidates who are fast learners or work hard, even if they don't have the right skills or experience yet.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4>Text B</h4>
+                        <h5>Career Talk</h5>
+                        <p class="text-muted">Edith Wright</p>
+                        <p>Ever since I was a girl, I wanted to be a teacher. Both my parents were teachers and I loved helping my brother with his homework. I worked hard at school and then did a teaching course at university. But in my first year of teaching, I realised I didn't have the right personality. My early decision to be a teacher made me unhappy, so I investigated other jobs.</p>
+                        <p>Luckily, I found a new direction for my life – I'm now a scientist. Changing careers wasn't easy. It took me 10 years and different courses to find the perfect path, but that long journey was important. I now know what my interests and abilities are, I learnt many different skills, and I'm better at solving problems. But the most important thing I've learned is that it's never too late to find what makes you happy. Today, I work in a small team, and I never get bored as I'm always doing something different.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4>Text C</h4>
+                        <h5>How to become a great athlete</h5>
+                        <p class="text-muted">www.allaboutsports.com</p>
+                        <p>I read a book about becoming a great athlete recently. Some information was rather obvious, like getting friends and family to encourage and help you. Two things I found most useful were:</p>
+                        <ul>
+                            <li>Start as soon as you can – you'll be more confident.</li>
+                            <li>Repeat the same training frequently – you'll improve quicker.</li>
+                        </ul>
+                        <p>If you're young and want to become an athlete, it's an interesting book to read.</p>
+                        <p class="text-muted">Sandie, Liverpool</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column: Task and Writing Area -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3>Writing Task</h3>
+                </div>
+                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
+                    <div class="mb-4">
+                        <h4>Task</h4>
+                        <p>Write a formal essay for your course tutor, developing an argument on the following topic:</p>
+                        <div class="alert alert-primary">
+                            <p class="mb-0"><strong>Young people must start preparing for their future career as early as possible. To what extent do you agree or disagree?</strong></p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('writing.writing_task_2_essay_submit') }}">
+                        <div class="mb-4">
+                            <label for="writingTask2essay" class="form-label">Your Essay</label>
+                            <textarea class="form-control" id="writingTask2essay" name="writingTask2essay" rows="15" style="resize: none;"></textarea>
+                            <div class="form-text">
+                                <span id="wordCount">0</span> words
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Essay</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('writingTask2essay');
+    const wordCountDisplay = document.getElementById('wordCount');
+
+    function countWords(text) {
+        return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    }
+
+    textarea.addEventListener('input', function() {
+        const wordCount = countWords(this.value);
+        wordCountDisplay.textContent = wordCount;
+        
+        if (wordCount > 300) {
+            wordCountDisplay.classList.add('text-danger');
+        } else {
+            wordCountDisplay.classList.remove('text-danger');
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

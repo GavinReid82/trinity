@@ -1,0 +1,275 @@
+{% extends "layout.html" %}
+
+{% block title %}Reading a Paired Text{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>Reading a paired text  <i class="bi bi-book"></i></h1>
+            <h2>Instructions</h2>
+            <p>Read the texts and answer the questions.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left column: Texts -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3>Reading Texts</h3>
+                </div>
+                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
+                    <h4 class="bg-primary text-white p-2 rounded">Reading Text A</h4>
+                    <h5>Business Negotiation</h5>
+                    <p>Negotiation can be defined as a dialogue involving two or more parties for the purpose of reaching an agreement satisfactory to all.</p>
+                    <p>In the business world, people negotiate all the time, within and between companies. Examples include: a buyer and a seller negotiating a satisfactory price for a product; two businesses negotiating the terms under which they will work together; an individual negotiating the terms of his contract with an employer.</p>
+                    <p>There is no one-size-fits-all method of successful negotiation, but the following elements are important in all negotiations.</p>
+                    <h5>Knowledge</h5>
+                    <p>It is important to know the people with whom you are negotiating. You should understand the needs and aims both of individuals and the companies they work for. You should be aware of the company's financial situation, what terms they will or won't (or simply cannot) accept, and the sort of terms they are likely to be offered by your competitors.</p>
+                    <p>You should also be aware of the company's culture and hierarchy, how their decisions are reached and how their previous negotiations have fared. As much knowledge as possible should be gathered before negotiations commence, but more can be gained during the negotiation.</p>
+                    <h5>Strategy</h5>
+                    <p>It is important to know the terms and prices that you are willing to accept and to be prepared to walk away if the other party will not match them. You can structure a negotiation carefully by planning what you will talk about at each stage of your talks, allowing enough time for difficult issues to be resolved. You should anticipate questions that your partner will ask and be ready with detailed and satisfactory answers.</p>
+                    <h5>Communication</h5>
+                    <p>Negotiators should be polite and professional – but persistent. Your manner should be adapted to your partner – again this comes back to knowledge. While some people will be offended by overly forward haggling, others will expect and indeed engage in such aggressive behaviour. Skilled negotiators, however, must make all parties feel like they have derived value from a deal.</p>
+
+                    <h4 class="bg-primary text-white p-2 rounded">Reading Text B</h4>
+                    <h5>Will NyS revolutionise your business?</h5>
+                    <p>By Frank Shaughnessy for Business Monthly</p>
+                    <p>NyS ('Negotiate your Success') is a half-day long series of lectures on successful negotiation. The course was a national sensation in America last year, visiting all the major cities including Chicago, Boston, and New York. Now touring the capitals of Europe, it was in Paris on Monday and London on Friday. The NyS team stopped in my own hometown of Dublin at the weekend, promising to make us all unimaginably rich.</p>
+                    <p>In the opening lecture, titled 'Tricks of the Trade', the presenter dispensed an assortment of techniques alleged to secure you a great deal at the expense of your partner. One such gambit was 'tell your partner that you have been offered a better deal by one of his competitors'. I reckon I must have heard that one forty years ago – and I'm only forty-five. Most of his tips were similarly antiquated.</p>
+                    <p>The second lecture, about body language, was moderately better. This speaker acquainted us with the sort of clothes, manners and facial expressions one should wear to a negotiation. She appeared to sincerely believe that you can thrive in the business world with the right combination of dapper suits, winsome smiles and grim frowns. She warned us, alas, that our negotiating partners would likewise be trying to manipulate us with their appearance – we must be on our guard!</p>
+                    <p>The third and final lecture was called 'Smash the Deal', and the presenter was predictably enthusiastic. He told his audience stories about business deals in which he had triumphed, all the while exhorting us to 'think big', 'fight for what you believe in' and 'never give up.' I couldn't say I learned anything useful, but at least it was entertaining.</p>
+                    <p>Business Monthly readers know as well as I do that negotiation is not a matter of 'beating your opponent', it is about reaching an agreement mutually beneficial to both parties. We also know that, while there exist many useful negotiation techniques, few businesses would be fooled by the 'tricks' that NyS are advocating.</p>
+                    <p>By the way, it was $500 for a ticket to the NyS course – that's what I call a bad deal.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column: Questions -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3>Questions</h3>
+                    <div class="alert alert-info">
+                        <p>◗ Click on an answer option to choose your answer.</p>
+                        <p>◗ Click on a different answer option to change your answer.</p>
+                        <p>◗ Right click on an answer option to cross it out.</p>
+                        <p>◗ Select only one option</p>
+                    </div>
+                </div>
+                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
+                    <form id="quizForm">
+                        <div class="question mb-4">
+                            <p class="fw-bold">1. Who would Text A be most useful for?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">a product designer</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">a financial analyst</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">a business student</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">a skilled negotiator</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">2. According to Text A, how does knowledge help negotiators?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">to learn more about your competitor during a negotiation</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">to understand and exploit your partner's weaknesses</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">to develop a product worth selling on the market</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">to select the appropriate strategy and communication style</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">3. In Text A, what does 'structuring' a negotiation involve?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">arranging the room to maximise communication</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">scheduling when to bring up each negotiable item</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">drawing up a contract of important shared principles</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">deciding your target prices and terms before you start</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">4. In Text A, what is affected by the culture of the company you are negotiating with?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">your professionalism</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">your expertise</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">your politeness</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">your aggression</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">5. What is the main purpose of Text B?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">to explain the NyS course</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">to advertise the NyS course</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">to investigate the NyS course</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">to review the NyS course</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">6. Where did the writer attend the NyS course?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">Paris</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">New York</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">Dublin</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">London</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">7. In Text B, who advises negotiators to be persistent?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="7">all the presenters</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="7">the first presenter</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="7">the third presenter</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="7">the second presenter</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">8. What is the purpose of the last sentence in Text B?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="8">It offers a humorous criticism of the NyS course.</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="8">It summarises the benefits of the NyS course.</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="8">It gives interesting information about the NyS course.</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="8">It provides a last bit of wisdom from the NyS course.</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">9. Which of the following ideas is mentioned in both texts?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="9">fool your negotiating partner</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="9">learn about the company culture</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="9">ensure that each party is satisfied</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="9">plan the negotiation carefully</button>
+                            </div>
+                        </div>
+
+                        <div class="question mb-4">
+                            <p class="fw-bold">10. How would the writer of Text A describe the NyS lectures?</p>
+                            <div class="btn-group-vertical w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="10">moralistic</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="10">simplistic</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="10">sympathetic</button>
+                                <button type="button" class="btn btn-outline-primary text-start" data-question="10">authentic</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-primary btn-lg" id="submitBtn">Submit Answers</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Correct answers for each question
+    const correctAnswers = {
+        1: "a business student",
+        2: "to select the appropriate strategy and communication style",
+        3: "scheduling when to bring up each negotiable item",
+        4: "your aggression",
+        5: "to review the NyS course",
+        6: "Dublin",
+        7: "the third presenter",
+        8: "It offers a humorous criticism of the NyS course.",
+        9: "ensure that each party is satisfied",
+        10: "simplistic"
+    };
+
+    // Handle answer selection
+    const buttons = document.querySelectorAll('.btn-outline-primary');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const question = this.dataset.question;
+            // Remove active class from all buttons in this question group
+            document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            this.classList.add('active');
+        });
+
+        // Handle right-click to cross out
+        button.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            this.classList.toggle('text-decoration-line-through');
+        });
+    });
+
+    // Handle submit button click
+    document.getElementById('submitBtn').addEventListener('click', function() {
+        // Disable the submit button
+        this.disabled = true;
+        
+        let score = 0;
+        const answers = {};
+        
+        // Check each question
+        Object.entries(correctAnswers).forEach(([question, correctAnswer]) => {
+            const selectedButton = document.querySelector(`[data-question="${question}"].active`);
+            if (selectedButton) {
+                const selectedAnswer = selectedButton.textContent.trim();
+                answers[question] = selectedAnswer;
+                
+                if (selectedAnswer === correctAnswer) {
+                    // Correct answer - add green checkmark
+                    selectedButton.classList.add('btn-success', 'text-white');
+                    selectedButton.innerHTML = `${selectedAnswer} <i class="bi bi-check-circle-fill"></i>`;
+                    score++;
+                } else {
+                    // Incorrect answer - add red cross
+                    selectedButton.classList.add('btn-danger', 'text-white');
+                    selectedButton.innerHTML = `${selectedAnswer} <i class="bi bi-x-circle-fill"></i>`;
+                    
+                    // Show correct answer in green
+                    const correctButton = Array.from(document.querySelectorAll(`[data-question="${question}"]`))
+                        .find(btn => btn.textContent.trim() === correctAnswer);
+                    if (correctButton) {
+                        correctButton.classList.add('btn-success', 'text-white');
+                        correctButton.innerHTML = `${correctAnswer} <i class="bi bi-check-circle-fill"></i>`;
+                    }
+                }
+            }
+        });
+
+        // Send answers to server
+        console.log('Sending answers:', answers);
+        console.log('Score:', score);
+        
+        fetch('/reading/paired-text/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                answers: answers,
+                score: score
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server response:', data);
+            if (data.status === 'success') {
+                console.log('Answers saved successfully');
+            } else {
+                console.error('Error saving answers:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

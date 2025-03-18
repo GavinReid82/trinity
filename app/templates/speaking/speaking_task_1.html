@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}Speaking Task 1 - Question {{ question_number }}{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-3">Answering questions: {{ question_number }}</h1>
+
+<div class="card mx-auto mt-4 p-4 shadow" style="max-width: 600px;">
+    <p class="text-center fw-bold mb-3">{{ question }}</p>
+
+    <div class="text-center">
+        <button id="start-recording" class="btn btn-primary">Start Recording</button>
+        <button id="countdown-timer" class="btn btn-secondary text-center" disabled style="width: 150px;">
+            <span id="countdown-text">30</span> seconds left
+        </button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-5">
+    <form method="POST" action="{{ url_for('speaking.speaking_task_submit') }}" enctype="multipart/form-data">
+        <input type="hidden" name="question_number" value="{{ question_number }}">
+        <input type="hidden" name="audio_data" id="audio-data">
+        <button type="submit" id="submit-btn" class="btn btn-success mt-3">
+            Submit recording and get feedback
+        </button>        
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/speaking/speaking_task_1.js') }}"></script>
+
+{% endblock %}
