@@ -9,12 +9,18 @@ from app.blueprints.speaking.routes import speaking_bp
 from app.blueprints.dashboard.routes import dashboard_bp
 from app.blueprints.reading.routes import reading_bp
 from app.blueprints.listening.routes import listening_bp
+from app.blueprints.tips.routes import tips_bp
+import os
 
 migrate = Migrate()  # ✅ Initialize Flask-Migrate
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # Set up upload folder
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Set file upload limit to 100MB
     app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
@@ -32,6 +38,7 @@ def create_app():
     app.register_blueprint(listening_bp, url_prefix='/listening')
     app.register_blueprint(speaking_bp, url_prefix='/speaking')
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(tips_bp)
 
     return app
 

@@ -1,0 +1,243 @@
+/* Global styles */
+body {
+    background-color: white;
+    font-family: verdana, geneva, sans-serif;
+}
+
+.container-fluid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h2 {
+    color: #9a619b;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.instructions-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    padding: 30px;
+}
+
+.instructions-content {
+    width: 45%;
+}
+
+.instructions-image {
+    width: 45%;
+    object-fit: cover;
+    border-radius: 4px;
+    align-items: center;
+}
+
+.page-title {
+    color: #50144b;
+    font-family: verdana, geneva, sans-serif;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.title-icon {
+    height: 40px;
+    width: auto;
+    vertical-align: middle;
+}
+
+.instructions-box {
+    border: 1px solid #666;
+    padding: 10px;
+    background-color: white;
+}
+
+.instructions-box h2 {
+    color: #9a619b;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.instructions-box p {
+    font-size: 1rem;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+}
+
+.instructions-box .bullet-point {
+    color: #9a619b;
+    margin-right: 5px;
+}
+
+.instructions-box .highlight {
+    font-weight: bold;
+}
+
+.scroll-instruction {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 2rem 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.scroll-instruction i {
+    color: #9a619b;
+}
+
+.warning-icon {
+    color: #856404;
+    margin-right: 8px;
+}
+
+.card {
+    border: none;
+    border-radius: 8px;
+}
+
+.card-header {
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.alert {
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-info {
+    background-color: white;
+    border-color: #dee2e6;
+    color: #212529;
+}
+
+.btn-primary {
+    background-color: #50144b;
+    border-color: #50144b;
+}
+
+.btn-primary:hover {
+    background-color: #3a0f36;
+    border-color: #3a0f36;
+}
+
+.btn-primary:active,
+.btn-primary:focus,
+.btn-primary.disabled,
+.btn-primary:disabled {
+    background-color: #ffd700 !important;
+    border-color: #ffd700 !important;
+    color: black !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+.navbar {
+    background-color: #50144b !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand, .nav-link {
+    color: white !important;
+}
+
+.navbar-brand:hover, .nav-link:hover {
+    color: #f8f9fa !important;
+}
+
+footer {
+    background-color: #50144b;
+    color: #50144b;
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 15px;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .instructions-container {
+        flex-direction: column;
+    }
+
+    .instructions-container > div:first-child,
+    .instructions-image {
+        flex: 0 0 100%;
+        width: 100%;
+    }
+}
+
+.questions {
+    margin-top: 2rem;
+}
+
+.question {
+    background-color: white;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.question p {
+    background-color: #f8f9fa;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 0;
+    font-weight: bold;
+}
+
+.btn-group-vertical {
+    width: 100%;
+    background-color: white;
+}
+
+.btn-group-vertical .btn {
+    text-align: left;
+    margin-bottom: 1rem;
+    border: 4px solid #666;
+    border-radius: 0 !important;
+    font-size: 1.1rem;
+    background-color: white;
+}
+
+.btn-group-vertical .btn:hover {
+    background-color: white;
+    border: 4px solid #ffd700;
+}
+
+.btn-group-vertical .btn.active {
+    background-color: #ffeeb4;
+    border: 4px solid #666;
+    color: black;
+}
+
+.btn-outline-primary {
+    color: black;
+    border: 2px solid #666;
+}
+
+.btn-outline-primary:hover {
+    color: black;
+    background-color: white;
+    border: 2px solid #ffd700;
+} 

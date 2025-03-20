@@ -20,22 +20,22 @@ def login():
     return render_template('auth/login.html', form=form)
 
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
+# @auth_bp.route('/register', methods=['GET', 'POST'])
+# def register():
+#     form = RegistrationForm()
+#     if form.validate_on_submit():
+#         user = User(email=form.email.data)
+#         user.set_password(form.password.data)
+#         db.session.add(user)
+#         db.session.commit()
 
-        login_user(user)  # ✅ Automatically log in the user
-        session['user_id'] = user.id  # ✅ Store user_id in session after registration
+#         login_user(user)  # ✅ Automatically log in the user
+#         session['user_id'] = user.id  # ✅ Store user_id in session after registration
 
-        flash('Account created! You are now logged in.', 'success')
-        return redirect(url_for('dashboard.dashboard_home'))  # ✅ Redirect to dashboard
+#         flash('Account created! You are now logged in.', 'success')
+#         return redirect(url_for('dashboard.dashboard_home'))  # ✅ Redirect to dashboard
 
-    return render_template('auth/register.html', form=form)
+#     return render_template('auth/register.html', form=form)
 
 
 @auth_bp.route('/logout')

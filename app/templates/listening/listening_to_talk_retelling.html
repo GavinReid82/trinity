@@ -6,157 +6,116 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <h1>Listening to a Talk <i class="bi bi-ear"></i></h1>
-            <h2>Instructions</h2>
-            <p>You will hear a talk. Then you will hear another person summarise the talk. Answer the questions while you listen. You will hear each person only once.</p>
-            <div class="alert alert-info">
-                <p>◗ You now have 30 seconds to read the questions.</p>
-                <p>◗ The recording will begin after the tone.</p>
+            <div class="instructions-container">
+                <div class="instructions-content">
+                    <h1 class="page-title">Listening to a talk <img src="{{ url_for('static', filename='images/listening.jpg') }}" alt="Listening icon" class="title-icon"></h1>
+                    <div class="instructions-box">
+                        <h2>Instructions</h2>
+                        <p>You will hear a talk. Then you will hear another person summarise the talk. Answer the questions while you listen. You will hear each person only once.</p>
+                        <p><span class="bullet-point">◗</span> You now have <span class="highlight">30 seconds</span> to read the questions.</p>
+                        <p><span class="bullet-point">◗</span> The recording will begin after the tone.</p>
+                    </div>
+                </div>
+                <img src="{{ url_for('static', filename='images/cactus.jpg') }}" alt="Cactus landscape" class="instructions-image">
             </div>
+            <div class="scroll-instruction">
+                <span class="warning-icon">⚠</span>Please scroll down <i class="bi bi-arrow-down"></i> to answer the questions.
+            </div>
+        </div>
+
+        <!-- Questions without options -->
+        <div>
+            <p>1. When is the best time to see cactus flowers?</p>
+            <p>2. What kinds of products contain cactus flowers?</p>
+            <p>3. What did the students do after the lecture?</p>
+            <p>4. What is the talk mainly about?</p>
+            <p>5. What fact about cactuses do both speakers find surprising?</p>
+            <p>6. What did the woman think of the lecture overall?</p>
+        </div>
+
+        <!-- Audio Player -->
+        <div class="mt-4 mb-4">
+            <audio controls class="w-50">
+                <source src="{{ url_for('static', filename='audio/talk.mp3') }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Left column: Audio and Questions -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h3>Listening Material</h3>
-                </div>
-                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
-                    <!-- Audio Player -->
-                    <div class="mb-4">
-                        <audio controls class="w-100">
-                            <source src="{{ url_for('static', filename='audio/talk.mp3') }}" type="audio/mpeg">
-                            Your browser does not support the audio element.
-                        </audio>
+
+    <!-- Answer Options -->
+    <div class="col-12">
+        <div class="card h-100">
+            <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
+                <form id="quizForm">
+                    <!-- Question 1 -->
+                    <div class="question">
+                        <p>1. When is the best time to see cactus flowers?</p>
+                    </div>
+                    <div class="btn-group-vertical w-60" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-question="1">evening</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="1">morning</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="1">afternoon</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="1">night</button>
                     </div>
 
-                    <!-- Questions without options -->
-                    <div class="questions">
-                        <div class="question mb-4">
-                            <p>1. When is the best time to see cactus flowers?</p>
-                        </div>
-
-                        <div class="question mb-4">
-                            <p>2. What kinds of products contain cactus flowers?</p>
-                        </div>
-
-                        <div class="question mb-4">
-                            <p>3. What did the students do after the lecture?</p>
-                        </div>
-
-                        <div class="question mb-4">
-                            <p>4. What is the talk mainly about?</p>
-                        </div>
-
-                        <div class="question mb-4">
-                            <p>5. What fact about cactuses do both speakers find surprising?</p>
-                        </div>
-
-                        <div class="question mb-4">
-                            <p>6. What did the woman think of the lecture overall?</p>
-                        </div>
+                    <!-- Question 2 -->
+                    <div class="question">
+                        <p>2. What kinds of products contain cactus flowers?</p>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right column: Answer Options -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h3>Answer Options</h3>
-                    <div class="alert alert-info">
-                        <p>◗ Click on an answer option to choose your answer.</p>
-                        <p>◗ Click on a different answer option to change your answer.</p>
-                        <p>◗ Right click on an answer option to cross it out.</p>
-                        <p>◗ Select only one option per question</p>
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-question="2">foods</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="2">drinks</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="2">medicines</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="2">creams</button>
                     </div>
-                </div>
-                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
-                    <form id="quizForm">
-                        <!-- Question 1 Options -->
-                        <div class="question mb-4">
-                            <p>1. When is the best time to see cactus flowers?</p>
-                        </div>
-                        <div class="question mb-4">
-                            <div class="btn-group-vertical w-100" role="group">
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">morning</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">night</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">evening</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="1">afternoon</button>
-                            </div>
-                        </div>
 
-                        <!-- Question 2 Options -->
-                        <div class="question mb-4">
-                            <p>2. What kinds of products contain cactus flowers?</p>
-                        </div>
-                        <div class="question mb-4">
-                            <div class="btn-group-vertical w-100" role="group">
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">foods</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">drinks</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">medicines</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="2">creams</button>
-                            </div>
-                        </div>
-
-                        <!-- Question 3 Options -->
-                        <div class="question mb-4">
-                            <p>3. What did the students do after the lecture?</p>
-                        </div>
-                        <div class="question mb-4">
-                            <div class="btn-group-vertical w-100" role="group">
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">They looked at some cactus plants.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">They made a film about cactus plants.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">They saw a video about cactus plants.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="3">They talked about cactus plants.</button>
-                            </div>
-                        </div>
-
-                        <!-- Question 4 Options -->
-                        <div class="question mb-4">
-                            <p>4. What is the talk mainly about?</p>
-                        </div>
-                        <div class="question mb-4">
-                            <div class="btn-group-vertical w-100" role="group">
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">the different types of cactuses</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">how cactuses grow and live</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">how a cactus can kill animals</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="4">the use of cactus on your face</button>
-                            </div>
-                        </div>
-
-                        <!-- Question 5 Options -->
-                        <div class="question mb-4">
-                            <p>5. What fact about cactuses do both speakers find surprising?</p>
-                        </div>
-                        <div class="question mb-4">
-                            <div class="btn-group-vertical w-100" role="group">
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">They need little water.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">They live a long time.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">They have a thick skin.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="5">They are very prickly.</button>
-                            </div>
-                        </div>
-
-                        <!-- Question 6 Options -->
-                        <div class="question mb-4">
-                            <p>6. What did the woman think of the lecture overall?</p>
-                        </div>
-                        <div class="question mb-4">
-                            <div class="btn-group-vertical w-100" role="group">
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was interesting.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was painful.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was amusing.</button>
-                                <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was shocking.</button>
-                            </div>
-                        </div>
-                    </form>
-                    <div class="text-center mt-4">
-                        <button type="button" class="btn btn-primary btn-lg" id="submitBtn">Submit Answers</button>
+                    <!-- Question 3 -->
+                    <div class="question">
+                        <p>3. What did the students do after the lecture?</p>
                     </div>
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-question="3">They looked at some cactus plants.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="3">They made a film about cactus plants.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="3">They saw a video about cactus plants.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="3">They talked about cactus plants.</button>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="question">
+                        <p>4. What is the talk mainly about?</p>
+                    </div>
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-question="4">the different types of cactuses</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="4">how cactuses grow and live</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="4">how a cactus can kill animals</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="4">the use of cactus on your face</button>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="question">
+                        <p>5. What fact about cactuses do both speakers find surprising?</p>
+                    </div>
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-question="5">They need little water.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="5">They live a long time.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="5">They have a thick skin.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="5">They are very prickly.</button>
+                    </div>
+
+                    <!-- Question 6 -->
+                    <div class="question">
+                        <p>6. What did the woman think of the lecture overall?</p>
+                    </div>
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-question="6">It was interesting.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="6">It was painful.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="6">It was amusing.</button>
+                        <button type="button" class="btn btn-outline-primary" data-question="6">It was shocking.</button>
+                    </div>
+                </form>
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-primary btn-lg" id="submitBtn">Submit Answers</button>
                 </div>
             </div>
         </div>

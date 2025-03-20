@@ -9,11 +9,6 @@ import json
 def listening_home():
     return render_template('listening/home.html')
 
-@listening_bp.route('/tips')
-@login_required
-def listening_tips():
-    return render_template('listening/listening_tips.html')
-
 @listening_bp.route('/talk')
 @login_required
 def listening_talk():

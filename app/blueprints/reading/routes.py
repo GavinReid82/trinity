@@ -9,11 +9,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@reading_bp.route('/tips')
-@login_required
-def reading_tips():
-    return render_template('reading/reading_tips.html')
-
 @reading_bp.route('/paired-text')
 @login_required
 def reading_a_paired_text():

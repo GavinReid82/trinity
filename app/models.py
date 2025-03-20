@@ -43,6 +43,11 @@ class Transcript(db.Model):
     transcription = db.Column(db.Text, nullable=False)
     feedback = db.Column(db.JSON, nullable=True)  # AI-generated feedback stored as JSON
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Add this field to link follow-up responses to main responses
+    main_transcript_id = db.Column(db.Integer, db.ForeignKey('transcripts.id'), nullable=True)
+
+    # Add relationship
+    main_transcript = db.relationship('Transcript', remote_side=[id], backref='follow_up_responses')
 
     def __repr__(self):
         return f"<Transcript User {self.user_id}, Task {self.task_id}>"

@@ -1,14 +1,16 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for
+from flask import Blueprint, render_template, request, session, redirect, url_for, current_app, jsonify, flash
 from openai import OpenAI
 import json
 import os
 import re
 from werkzeug.utils import secure_filename
 from app.blueprints.speaking import speaking_bp
+from flask_login import current_user, login_required
+from app.models import db, Task, Transcript
+from app.blueprints.speaking.utils import save_audio_file, transcribe_audio, generate_feedback
 
 
 speaking_bp = Blueprint('speaking', __name__, template_folder='templates')
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -23,6 +25,7 @@ def speaking_tips():
     return render_template('speaking/speaking_tips.html')
 
 @speaking_bp.route('/speaking_task_2')
+@login_required
 def speaking_task_2():
     return render_template('speaking/speaking_task_2.html')
 
@@ -38,7 +41,7 @@ def speaking_task_4():
 @speaking_bp.route('/speaking_task_1_q1')
 def speaking_task_1_q1():
     return render_template('speaking/speaking_task_1.html', 
-                           question="I'm planning to take my family on holiday next year. What kind of holiday is best and why?", 
+                           question="What is the best holiday for families with children?", 
                            question_number=1)
 
 
@@ -57,162 +60,261 @@ def speaking_task_1_q3():
 
 
 @speaking_bp.route('/speaking_task_submit', methods=['POST'])
+@login_required
 def speaking_task_submit():
-    print(f"🔍 Request received at: {request.path}")
-    print(f"🔍 Full request data: {request.form}")
-
-    questions = {
-    "1": "I'm planning to take my family on holiday next year. What kind of holiday is best and why?",
-    "2": "What do you do to relax?",
-    "3": "I think life is becoming more stressful. Would you agree?"
-    }   
-
-    if 'audio_file' not in request.files:
-        return render_template(
-            'speaking_task_1_feedback.html',
-            question="Unknown question",
-            transcription="No transcription available.",
-            general_comment="No file uploaded.",
-            did_well=[],
-            could_improve=[]
-        )
-
-    # ✅ Save the uploaded binary audio file
-    file = request.files['audio_file']
-    filename = secure_filename(f"candidate_12345_q{request.form['question_number']}.webm")
-    audio_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-    try:
-        file.save(audio_file_path)
-        print(f"Audio file saved: {audio_file_path}")
-    except Exception as e:
-        print(f"Error saving file: {e}")
-        return render_template(
-            'speaking_task_1_feedback.html',
-            question="Unknown question",
-            transcription="No transcription available.",
-            general_comment="Failed to save audio file.",
-            did_well=[],
-            could_improve=[]
-        )
-
-    # ✅ Send to OpenAI Whisper for transcription
-    try:
-        with open(audio_file_path, "rb") as audio_file:
-            response = client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio_file,
-                response_format="text"
-            )
-        transcription = response.strip()
-        print(f"Transcription: {transcription}")
-
-    except Exception as e:
-        print(f"Error transcribing audio: {e}")
-        return render_template(
-            'speaking_task_1_feedback.html',
-            question="Unknown question",
-            transcription="No transcription available.",
-            general_comment="Audio transcription failed.",
-            did_well=[],
-            could_improve=[]
-        )
-
-    # ✅ Keep YOUR Detailed Prompt for GPT-4
-    messages = [
-        {"role": "system", "content": (
-            "You are an instructor for Trinity's ISE Digital Speaking exam. "
-            "Your job is to give feedback to candidates based on their performance, following the guidelines below. "
-            "Write in British English at all times. Your feedback language should be simple enough for a grade 5 (or A2 on CEFR) to understand.\n\n"
-
-            "Candidates are graded on the following: "
-            "1. Task fulfilment: Ability to respond to the task with relevant details, organise ideas coherently, and respond fully in the time allowed (30 seconds per question). "
-            "2. Language: Ability to use a range of grammar and lexis accurately and effectively. "
-            "3. Delivery: Ability to use stress, intonation, and pace for the demands of the context, audience, and purpose; effective pronunciation and fluency. "
-            
-            "Your job is to ensure that the candidate has answered the question correctly and suggest improvements. "
-            "Provide feedback in three sections:\n"
-            "1. General Comment\n"
-            "2. What You Did Well (bullet points)\n"
-            "3. What You Could Improve (bullet points)\n\n"
-
-            "**Return your response in JSON format ONLY.**\n"
-            "**DO NOT** include any extra text, explanations, or preambles. **ONLY return a JSON object** with the following structure:\n"
-            "{\n"
-            '"general_comment": "string",\n'
-            '"did_well": ["string", "string"],\n'
-            '"could_improve": ["string", "string"]\n'
-            "}"
-        )},
-        {"role": "user", "content": f"Here is the candidate's speaking response: {transcription}"}
-    ]
-
-    try:
-        chat_response = client.chat.completions.create(
-            model="gpt-4",
-            messages=messages,
-            temperature=0.7,
-            max_tokens=500
-        )
-        raw_feedback = chat_response.choices[0].message.content.strip()
-        print(f"Raw GPT-4 response: {raw_feedback}")
-
-        # ✅ Extract JSON object using regex
-        json_match = re.search(r'\{.*\}', raw_feedback, re.DOTALL)
-        if json_match:
-            raw_feedback = json_match.group(0)
-            feedback = json.loads(raw_feedback)
-            print(f"Parsed feedback: {feedback}")  # Log for verification
-        else:
-            raise ValueError("Could not find JSON object in GPT-4 response")
-
-    except Exception as e:
-        print(f"Error generating feedback: {e}")
-        feedback = {
-            "general_comment": "Unable to parse feedback. Please check the response.",
-            "did_well": [],
-            "could_improve": []
-        }
+    # Initialize client inside the route
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    print("="*50)
+    print("Starting speaking task submission")
+    print(f"Current user ID: {current_user.id}")
     
-    # ✅ Determine the next question number
-    current_question_number = int(request.form['question_number'])
-    next_question_number = current_question_number + 1 if current_question_number < len(questions) else None
-
-    # ✅ Store feedback in session
-    session['feedback'] = {
-        'question': questions[str(current_question_number)],
-        'transcription': transcription,
-        'general_comment': feedback['general_comment'],
-        'did_well': feedback['did_well'],
-        'could_improve': feedback['could_improve'],
-        'next_question': f'speaking_task_1_q{next_question_number}' if next_question_number else None
+    # Clear any old feedback from session
+    session.pop('feedback', None)
+    
+    questions = {
+        "1": "What is the best holiday for families with children?",
+        "2": "What do you do to relax?",
+        "3": "I think life is becoming more stressful. Would you agree?"
     }
 
-    # ✅ Clean up and delete the audio file
-    if os.path.exists(audio_file_path):
-        os.remove(audio_file_path)
-        print(f"Deleted audio file: {audio_file_path}")
+    # Save the audio file
+    audio_path, error = save_audio_file(request)
+    if error:
+        print(f"Error saving audio: {error}")
+        return redirect(url_for('speaking.speaking_task_1_feedback'))
 
-    # ✅ Render the feedback page with all the necessary variables
+    print(f"Successfully saved audio to: {audio_path}")
+
+    # Transcribe the audio
+    transcription, error = transcribe_audio(audio_path)
+    if error:
+        print(f"Error transcribing: {error}")
+        return redirect(url_for('speaking.speaking_task_1_feedback'))
+
+    print(f"Successfully transcribed: {transcription[:100]}...")
+
+    # Generate feedback
+    feedback, error = generate_feedback(transcription)
+    if error:
+        print(f"Error generating feedback: {error}")
+        return redirect(url_for('speaking.speaking_task_1_feedback'))
+
+    print(f"Successfully generated feedback: {feedback}")
+
+    try:
+        current_question = request.form.get('question_number')
+        print(f"Processing question number: {current_question}")
+
+        # Create or get task
+        task_name = f"Speaking Task 1 Q{current_question}"
+        task = Task.query.filter_by(name=task_name, type='speaking').first()
+        if not task:
+            print(f"Creating new task: {task_name}")
+            task = Task(name=task_name, type='speaking')
+            db.session.add(task)
+            db.session.flush()  # Get the ID without committing
+
+        # Create transcript
+        transcript = Transcript(
+            user_id=current_user.id,
+            task_id=task.id,
+            transcription=transcription,
+            feedback=feedback
+        )
+        db.session.add(transcript)
+        db.session.commit()
+        print(f"Successfully saved transcript ID: {transcript.id}")
+
+        # Set session data
+        next_question_number = int(current_question) + 1 if int(current_question) < len(questions) else None
+        session['feedback'] = {
+            'question': questions[current_question],
+            'transcription': transcription,
+            'general_comment': feedback['general_comment'],
+            'did_well': feedback['did_well'],
+            'could_improve': feedback['could_improve'],
+            'next_question': f'speaking.speaking_task_1_q{next_question_number}' if next_question_number else None
+        }
+        print("Successfully set session feedback")
+
+    except Exception as e:
+        print(f"Database error: {str(e)}")
+        db.session.rollback()
+        return redirect(url_for('speaking.speaking_task_1_feedback'))
+
+    finally:
+        # Clean up the audio file
+        if audio_path and os.path.exists(audio_path):
+            os.remove(audio_path)
+            print(f"Cleaned up audio file: {audio_path}")
+
+    print("="*50)
     return redirect(url_for('speaking.speaking_task_1_feedback'))
 
 
 @speaking_bp.route('/speaking_task_1_feedback', methods=['GET'])
+@login_required
 def speaking_task_1_feedback():
+    print("="*50)
+    print("Retrieving feedback")
+    
+    # Try to get feedback from session
     feedback = session.get('feedback', {})
-    question = feedback.get('question', 'Unknown question')
-    transcription = feedback.get('transcription', 'No transcription available.')
-    general_comment = feedback.get('general_comment', 'No general comment provided.')
-    did_well = feedback.get('did_well', [])
-    could_improve = feedback.get('could_improve', [])
-    next_question = feedback.get('next_question', None)
-
+    print(f"Session feedback: {feedback}")
+    
+    if not feedback:
+        print("No session feedback, checking database")
+        # First check if we have any speaking tasks
+        speaking_task = Task.query.filter_by(type='speaking').first()
+        if speaking_task:
+            # If we have tasks, look for transcripts
+            latest_transcript = Transcript.query.filter_by(
+                user_id=current_user.id,
+                task_id=speaking_task.id
+            ).order_by(Transcript.created_at.desc()).first()
+            
+            if latest_transcript:
+                print(f"Found latest transcript ID: {latest_transcript.id}")
+                task = Task.query.get(latest_transcript.task_id)
+                feedback = {
+                    'question': task.name if task else 'Unknown question',
+                    'transcription': latest_transcript.transcription,
+                    'general_comment': latest_transcript.feedback.get('general_comment', ''),
+                    'did_well': latest_transcript.feedback.get('did_well', []),
+                    'could_improve': latest_transcript.feedback.get('could_improve', []),
+                    'next_question': None
+                }
+            else:
+                print("No transcript found in database")
+        else:
+            print("No speaking tasks found in database")
+    
+    print(f"Final feedback being rendered: {feedback}")
+    print("="*50)
+    
     return render_template(
         'speaking/speaking_task_1_feedback.html',
-        question=question,
-        transcription=transcription,
-        general_comment=general_comment,
-        did_well=did_well,
-        could_improve=could_improve,
-        next_question=next_question
+        question=feedback.get('question', 'Unknown question'),
+        transcription=feedback.get('transcription', 'No transcription available.'),
+        general_comment=feedback.get('general_comment', 'No general comment provided.'),
+        did_well=feedback.get('did_well', []),
+        could_improve=feedback.get('could_improve', []),
+        next_question=feedback.get('next_question', None)
     )
+
+@speaking_bp.route('/speaking_task_2_submit', methods=['POST'])
+@login_required
+def speaking_task_2_submit():
+    try:
+        stage = request.form.get('stage', 'main')
+        
+        # Save audio file
+        audio_path, error = save_audio_file(request, task_type='task_2', user_id=current_user.id)
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Transcribe audio
+        transcription = transcribe_audio(audio_path)
+        if isinstance(transcription, tuple):
+            transcription = transcription[0]
+        print(f"✅ Transcription: {transcription}")
+
+        # Generate feedback
+        feedback, error = generate_feedback(
+            transcription=transcription,
+            task_type='speaking_2',
+            stage=stage
+        )
+        
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Get the task_id for speaking_task_2
+        task = Task.query.filter_by(name='speaking_task_2').first()
+        if not task:
+            # Create the task if it doesn't exist
+            task = Task(name='speaking_task_2', type='speaking')
+            db.session.add(task)
+            db.session.commit()
+
+        # For main response
+        if stage == 'main':
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback  # This should work as the column is JSON type
+            )
+        else:
+            # For follow-up, link to the main response
+            main_transcript = Transcript.query.filter_by(
+                user_id=current_user.id,
+                task_id=task.id
+            ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback,
+                main_transcript_id=main_transcript.id if main_transcript else None
+            )
+
+        db.session.add(transcript)
+        db.session.commit()
+
+        # Clean up the audio file
+        try:
+            os.remove(audio_path)
+        except Exception as e:
+            print(f"Warning: Could not delete audio file: {e}")
+
+        # Return response based on stage
+        if stage == 'main':
+            return jsonify({
+                'success': True,
+                'feedback': feedback,
+                'follow_up_question': "What advice do you have for someone who wants to learn more about this topic?"
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'feedback': feedback
+            })
+
+    except Exception as e:
+        print(f"Exception occurred: {str(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': str(e)}), 500
+
+@speaking_bp.route('/speaking_task_2_feedback')
+@login_required
+def speaking_task_2_feedback():
+    task = Task.query.filter_by(name='speaking_task_2').first()
+    if not task:
+        flash('Task not found.', 'error')
+        return redirect(url_for('speaking.speaking_task_2'))
+
+    # Get the main response (one without a main_transcript_id)
+    main_transcript = Transcript.query.filter_by(
+        user_id=current_user.id,
+        task_id=task.id
+    ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+
+    # Get the follow-up response (linked to the main response)
+    follow_up_transcript = None
+    if main_transcript:
+        follow_up_transcript = Transcript.query.filter_by(
+            main_transcript_id=main_transcript.id
+        ).order_by(Transcript.created_at.desc()).first()
+
+    context = {
+        'main_response': main_transcript.transcription if main_transcript else None,
+        'main_feedback': main_transcript.feedback if main_transcript else None,
+        'follow_up_response': follow_up_transcript.transcription if follow_up_transcript else None,
+        'follow_up_feedback': follow_up_transcript.feedback if follow_up_transcript else None,
+        'follow_up_question': "What advice do you have for someone who wants to learn more about this topic?"
+    }
+    
+    return render_template('speaking/speaking_task_2_feedback.html', **context)

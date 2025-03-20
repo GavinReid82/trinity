@@ -30,11 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     submitButton.innerText = "Submitting...";
 
                     // ✅ Manually submit FormData using fetch
-                    fetch('/speaking_task_submit', {
+                    fetch('/speaking/speaking_task_submit', {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.text())  // Return plain text to check the server’s response
+                    .then(response => response.text())  // Return plain text to check the server's response
                     .then(data => {
                         console.log("Server response:", data);
                         window.location.href = `/speaking/speaking_task_1_feedback?question_number=${document.querySelector("input[name='question_number']").value}`;

@@ -1,7 +1,44 @@
 {% extends "layout.html" %}
 
-{% block title %}Writing Task{% endblock %}
+{% block title %}Speaking Task 2{% endblock %}
 
 {% block content %}
-<h1>Speaking coming soon!</h1>
+<h1 class="text-center mb-3">Deliver a prepared talk</h1>
+
+<div class="card mx-auto mt-4 p-4 shadow" style="max-width: 600px;">
+    <div id="main-task" class="mb-4">
+        <h4 class="text-center mb-3">Speak for up to 2 minutes.</h4>
+
+        <div class="text-center mt-4">
+            <button id="start-recording" class="btn btn-primary">Start Recording</button>
+            <button id="countdown-timer" class="btn btn-secondary text-center" disabled style="width: 150px;">
+                <span id="countdown-text">120</span> seconds left
+            </button>
+        </div>
+    </div>
+
+    <div id="follow-up" class="mb-4 d-none">
+        <h4 class="text-center mb-3">Follow-up Question:</h4>
+        <p id="follow-up-question" class="text-center fw-bold mb-3"></p>
+
+        <div class="text-center mt-4">
+            <button id="start-follow-up" class="btn btn-primary">Start Recording</button>
+            <button id="follow-up-timer" class="btn btn-secondary text-center" disabled style="width: 150px;">
+                <span id="follow-up-countdown">30</span> seconds left
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-5">
+    <form method="POST" action="{{ url_for('speaking.speaking_task_2_submit') }}" enctype="multipart/form-data">
+        <input type="hidden" name="stage" id="stage" value="main">
+        <input type="hidden" name="audio_data" id="audio-data">
+        <button type="submit" id="submit-btn" class="btn btn-primary mt-3">
+            Submit recording and continue
+        </button>        
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/speaking/speaking_task_2.js') }}"></script>
 {% endblock %}

@@ -17,6 +17,14 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def writing_home():
     return render_template('writing/home.html')
 
+@writing_bp.route('/task_1')
+def writing_task_1():
+    return render_template('writing/writing_task_1.html')
+
+@writing_bp.route('/task_2')
+def writing_task_2():
+    return render_template('writing/writing_task_2.html')
+
 @writing_bp.route('/writing_tips')
 def writing_tips():
     return render_template('writing/writing_tips.html')
@@ -29,9 +37,9 @@ def writing_task_1_group_chat():
 def writing_task_1_discussion_board():
     return render_template('writing/writing_task_1_discussion_board.html')
 
-@writing_bp.route('/writing_task_1_suggestion_box')
-def writing_task_1_suggestion_box():
-    return render_template('writing/writing_task_1_suggestion_box.html')
+@writing_bp.route('/writing_task_1_direct_communication')
+def writing_task_1_direct_communication():
+    return render_template('writing/writing_task_1_direct_communication.html')
 
 @writing_bp.route('/writing_task_2_essay')
 def writing_task_2_essay():
