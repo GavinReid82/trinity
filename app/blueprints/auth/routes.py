@@ -5,19 +5,37 @@ from app.blueprints.auth.forms import LoginForm, RegistrationForm
 
 auth_bp = Blueprint('auth', __name__)
 
+# Backend route example
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and user.check_password(form.password.data):
+    if request.method == 'GET':
+        return render_template('auth/login.html')
+    
+    if request.method == 'POST':
+        access_code = request.form.get('access_code')
+        user = User.find_by_access_code(access_code)
+        
+        if user:
             login_user(user)
-            session['user_id'] = user.id  # ✅ Store user_id in session
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('dashboard.dashboard_home'))
-        else:
-            flash('Invalid email or password.', 'danger')
-    return render_template('auth/login.html', form=form)
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('dashboard.dashboard_home'))
+        
+        flash('Invalid access code')
+        return redirect(url_for('auth.login'))
+
+#@auth_bp.route('/login', methods=['GET', 'POST'])
+#def login():
+#    form = LoginForm()
+#    if form.validate_on_submit():
+#        user = User.query.filter_by(email=form.email.data).first()
+#        if user and user.check_password(form.password.data):
+#            login_user(user)
+#            session['user_id'] = user.id  # ✅ Store user_id in session
+#            flash('Logged in successfully!', 'success')
+#            return redirect(url_for('dashboard.dashboard_home'))
+#        else:
+#            flash('Invalid email or password.', 'danger')
+#    return render_template('auth/login.html', form=form)
 
 
 # @auth_bp.route('/register', methods=['GET', 'POST'])

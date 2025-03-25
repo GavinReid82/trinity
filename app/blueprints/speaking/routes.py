@@ -158,16 +158,26 @@ def speaking_task_1_feedback():
     print("="*50)
     print("Retrieving feedback")
     
+    questions = {
+        "1": "What is the best holiday for families with children?",
+        "2": "What do you do to relax?",
+        "3": "I think life is becoming more stressful. Would you agree?"
+    }
+    
     # Try to get feedback from session
     feedback = session.get('feedback', {})
     print(f"Session feedback: {feedback}")
     
     if not feedback:
         print("No session feedback, checking database")
-        # First check if we have any speaking tasks
-        speaking_task = Task.query.filter_by(type='speaking').first()
+        # Get the question number from the URL parameters
+        question_number = request.args.get('question_number', '1')
+        task_name = f"Speaking Task 1 Q{question_number}"
+        
+        # Get the specific task for this question
+        speaking_task = Task.query.filter_by(name=task_name, type='speaking').first()
         if speaking_task:
-            # If we have tasks, look for transcripts
+            # Look for transcript for this specific task
             latest_transcript = Transcript.query.filter_by(
                 user_id=current_user.id,
                 task_id=speaking_task.id
@@ -175,19 +185,24 @@ def speaking_task_1_feedback():
             
             if latest_transcript:
                 print(f"Found latest transcript ID: {latest_transcript.id}")
-                task = Task.query.get(latest_transcript.task_id)
+                
+                # Calculate next question
+                next_q = int(question_number) + 1 if int(question_number) < len(questions) else None
+                next_question = f'speaking.speaking_task_1_q{next_q}' if next_q else None
+                
                 feedback = {
-                    'question': task.name if task else 'Unknown question',
+                    'question': questions.get(question_number, 'Unknown question'),
+                    'question_number': question_number,
                     'transcription': latest_transcript.transcription,
                     'general_comment': latest_transcript.feedback.get('general_comment', ''),
                     'did_well': latest_transcript.feedback.get('did_well', []),
                     'could_improve': latest_transcript.feedback.get('could_improve', []),
-                    'next_question': None
+                    'next_question': next_question
                 }
             else:
                 print("No transcript found in database")
         else:
-            print("No speaking tasks found in database")
+            print("No speaking task found in database")
     
     print(f"Final feedback being rendered: {feedback}")
     print("="*50)
@@ -195,6 +210,7 @@ def speaking_task_1_feedback():
     return render_template(
         'speaking/speaking_task_1_feedback.html',
         question=feedback.get('question', 'Unknown question'),
+        question_number=feedback.get('question_number', '1'),
         transcription=feedback.get('transcription', 'No transcription available.'),
         general_comment=feedback.get('general_comment', 'No general comment provided.'),
         did_well=feedback.get('did_well', []),

@@ -9,18 +9,15 @@ class User(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-
-    def set_password(self, password):
-        """Hashes the password and stores it securely."""
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        """Verifies a password against the stored hash."""
-        return check_password_hash(self.password_hash, password)
+    access_code = db.Column(db.String(50), unique=True, nullable=False)
 
     def __repr__(self):
         return f"<User {self.email}>"
+
+    @classmethod
+    def find_by_access_code(cls, code):
+        """Find a user by their access code."""
+        return cls.query.filter_by(access_code=code).first()
 
 
 class Task(db.Model):

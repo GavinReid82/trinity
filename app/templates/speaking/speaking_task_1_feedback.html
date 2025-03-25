@@ -36,7 +36,7 @@
 
 <div class="text-center mt-4">
     <a href="{{ url_for('speaking.speaking_task_1_q1') }}" class="btn btn-primary">Try Again</a>
-    {% if next_question %}
+    {% if question_number != '3' %}
         <a href="{{ url_for(next_question) }}" class="btn btn-success">Next Question</a>
     {% else %}
         <a href="{{ url_for('speaking.speaking_home') }}" class="btn btn-secondary">Return to Speaking Overview</a>
