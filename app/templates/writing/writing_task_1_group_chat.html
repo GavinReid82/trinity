@@ -1,51 +1,78 @@
 {% extends "layout.html" %}
 
-{% block title %}Writing Task{% endblock %}
+{% block title %}Written online communication{% endblock %}
 
 {% block content %}
-<h1 class="text-center">Written online communication</h1>
+<h1 class="page-title">Written online communication <img src="{{ url_for('static', filename='images/writing.jpg') }}" alt="Writing icon" class="title-icon"></h1>
 <!-- <p class="text-muted text-center">Please complete the writing task below and submit your response.</p> -->
 
 <div class="container my-4">
   <div class="row">
     <!-- First Card -->
     <div class="col-md-6">
-      <div class="card border-primary">
-          <div class="card-header bg-primary text-white">
-              <h5 class="mb-0">
-                  <i class="fas fa-comments"></i> Written online communication 🖋️
-              </h5>
-          </div>
-          <div class="card-body">
-              <h6 class="text-primary"><strong>Instructions</strong></h6>
-              <p>You are talking to your classmates about a group project for school. Write a message to your group and:</p>
-              <ul>
-                  <li><strong>respond to Lilly</strong></li>
-                  <li><strong>ask the group to help you with something</strong></li>
-              </ul>
-              <p>⏱️ You should spend about <strong><span class="text-primary">5 minutes</span></strong> on this task.</p>
-              <p>⚠️ You should write about <strong><span class="text-danger">70 words</span></strong> (maximum 90 words).</p>
-          </div>
+        <div class="instructions-box">
+            <h2>Instructions</h2>
+
+            <div>
+                <p>You are talking to your classmates about a group project for school. Write a message to your group and:</p>
+                <ul>
+                    <li><strong>respond to Lilly</strong></li>
+                    <li><strong>ask the group to help you with something</strong></li>
+                </ul>
+                <p>⏱️ You should spend about <strong><span class="text-primary">5 minutes</span></strong> on this task.</p>
+                <p>⚠️ You should write about <strong><span class="text-danger">70 words</span></strong> (maximum 90 words).</p>
+            </div>
       </div>
     </div>
 
     <!-- Second Card -->
     <div class="col-md-6">
       <div class="card">
-          <div class="card-header bg-info text-white">
-              <h5 class="mb-0"><strong>Group project: Organise a book club</strong></h5>
+          <div class="card-header" style="background-color: #4a154b; color: white;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                  <img src="{{ url_for('static', filename='images/group-icon.png') }}" alt="Group" style="width: 30px; height: 30px;">
+                  <h5 class="mb-0"><strong>Group project: Organise a book club</strong></h5>
+              </div>
           </div>
-          <div class="card-body">
-              <div class="mb-3">
-                  <p class="mb-1"><strong class="text-primary">Lilly</strong></p>
-                  <div class="alert alert-secondary">
-                      I'm worried about time. We only have two weeks and there's so much to do!
+          <div class="card-body" style="background-color: #f8f9fa;">
+              <!-- Participants list -->
+              <div class="mb-4" style="background-color: #fff5e6; padding: 15px; border-radius: 8px;">
+                  <div style="display: flex; flex-direction: column; gap: 15px;">
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                          <img src="{{ url_for('static', filename='images/avatar-kai.png') }}" alt="Kai" style="width: 40px; height: 40px; border-radius: 50%;">
+                          <span>Kai</span>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                          <img src="{{ url_for('static', filename='images/avatar-lilly.png') }}" alt="Lilly" style="width: 40px; height: 40px; border-radius: 50%;">
+                          <span>Lilly</span>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                          <img src="{{ url_for('static', filename='images/avatar-me.png') }}" alt="Me" style="width: 40px; height: 40px; border-radius: 50%;">
+                          <span>Me</span>
+                      </div>
                   </div>
               </div>
-              <div class="mb-3">
-                  <p class="mb-1"><strong class="text-info"></strong></p>
-                  <div class="alert alert-secondary">
-                      ...
+
+              <!-- Chat messages -->
+              <div class="chat-messages">
+                  <div class="mb-4">
+                      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                          <img src="{{ url_for('static', filename='images/avatar-lilly.png') }}" alt="Lilly" style="width: 40px; height: 40px; border-radius: 50%;">
+                          <strong style="color: #4a154b;">Lilly:</strong>
+                      </div>
+                      <div style="background-color: white; padding: 15px; border-radius: 8px; margin-left: 50px;">
+                          I'm worried about time. We only have two weeks and there's so much to do!
+                      </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                          <img src="{{ url_for('static', filename='images/avatar-me.png') }}" alt="Me" style="width: 40px; height: 40px; border-radius: 50%;">
+                          <strong style="color: #4a154b;">Me:</strong>
+                      </div>
+                      <div style="background-color: white; padding: 15px; border-radius: 8px; margin-left: 50px;">
+                          ...
+                      </div>
                   </div>
               </div>
           </div>
@@ -58,16 +85,40 @@
 <form method="POST" action="{{ url_for('writing.writing_task_1_submit') }}" class="mt-4">
     <div class="mb-3">
         <textarea class="form-control" id="writingTask1" name="writingTask1" rows="5" placeholder="Write your response here..."></textarea>
+        <div class="form-text">
+            <span id="wordCount">0</span> words
+        </div>
     </div>
     <div class="d-grid gap-2">
         <button type="submit" id="submit-btn" class="btn btn-primary">Submit and get feedback</button>
     </div>
 </form>
 <script>
-    document.querySelector('form').onsubmit = function() {
-        let submitBtn = document.getElementById('submit-btn');
-        submitBtn.innerText = 'Submitting... Please wait';
-        submitBtn.disabled = true; // Disable the button to prevent multiple clicks
-    };
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('writingTask1');
+        const wordCountDisplay = document.getElementById('wordCount');
+        const form = document.querySelector('form');
+
+        function countWords(text) {
+            return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        }
+
+        textarea.addEventListener('input', function() {
+            const wordCount = countWords(this.value);
+            wordCountDisplay.textContent = wordCount;
+            
+            if (wordCount > 90) {
+                wordCountDisplay.classList.add('text-danger');
+            } else {
+                wordCountDisplay.classList.remove('text-danger');
+            }
+        });
+
+        form.onsubmit = function() {
+            let submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = 'Submitting... Please wait';
+            submitBtn.disabled = true;
+        };
+    });
 </script>
 {% endblock %}

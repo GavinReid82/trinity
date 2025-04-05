@@ -3,7 +3,9 @@
 {% block title %}Speaking Task 1 - Question {{ question_number }}{% endblock %}
 
 {% block content %}
-<h1 class="text-center mb-3">Responding to questions: {{ question_number }}</h1>
+<h1 class="page-title">Responding to questions <img src="{{ url_for('static', filename='images/speaking.jpg') }}" alt="Speaking icon" class="title-icon"></h1>
+
+<h1 class="text-center mb-3">Question {{ question_number }}</h1>
 
 <div class="card mx-auto mt-4 p-4 shadow" style="max-width: 600px;">
     <p class="text-center fw-bold mb-3">{{ question }}</p>

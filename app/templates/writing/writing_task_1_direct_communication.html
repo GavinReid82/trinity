@@ -58,16 +58,40 @@
 <form method="POST" action="{{ url_for('writing.writing_task_1_submit') }}" class="mt-4">
     <div class="mb-3">
         <textarea class="form-control" id="writingTask1" name="writingTask1" rows="5" placeholder="Write your response here..."></textarea>
+        <div class="form-text">
+            <span id="wordCount">0</span> words
+        </div>
     </div>
     <div class="d-grid gap-2">
         <button type="submit" id="submit-btn" class="btn btn-primary">Submit and get feedback</button>
     </div>
 </form>
 <script>
-    document.querySelector('form').onsubmit = function() {
-        let submitBtn = document.getElementById('submit-btn');
-        submitBtn.innerText = 'Submitting... Please wait';
-        submitBtn.disabled = true; // Disable the button to prevent multiple clicks
-    };
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('writingTask1');
+        const wordCountDisplay = document.getElementById('wordCount');
+        const form = document.querySelector('form');
+
+        function countWords(text) {
+            return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        }
+
+        textarea.addEventListener('input', function() {
+            const wordCount = countWords(this.value);
+            wordCountDisplay.textContent = wordCount;
+            
+            if (wordCount > 90) {
+                wordCountDisplay.classList.add('text-danger');
+            } else {
+                wordCountDisplay.classList.remove('text-danger');
+            }
+        });
+
+        form.onsubmit = function() {
+            let submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = 'Submitting... Please wait';
+            submitBtn.disabled = true;
+        };
+    });
 </script>
 {% endblock %}
