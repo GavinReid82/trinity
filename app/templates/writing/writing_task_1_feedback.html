@@ -20,14 +20,14 @@
     <p class="text-muted"><strong>What You Did Well:</strong></p>
     <ul>
         {% for point in did_well %}
-            <li>{{ point }}</li>
+        <li>{{ point.replace('- ', '') }}</li>
         {% endfor %}
     </ul>
 
     <p class="text-muted"><strong>What You Could Improve:</strong></p>
     <ul>
         {% for point in could_improve %}
-            <li>{{ point }}</li>
+            <li>{{ point.replace('- ', '') }}</li>
         {% endfor %}
     </ul>
 </div>

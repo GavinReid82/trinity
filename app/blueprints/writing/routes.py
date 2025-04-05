@@ -56,6 +56,7 @@ def writing_task_1_submit():
         return redirect(url_for('auth.login'))
     
     response = request.form.get('writingTask1').replace("\r\n", "\n")
+    word_count = len(response.strip().split())
     
     messages = [
         {
@@ -64,6 +65,8 @@ def writing_task_1_submit():
                 "You are an instructor for Trinity's ISE Digital Writing exam. "
                 "Your job is to give feedback to candidates based on their performance, following the guidelines below. "
                 "Write in British English at all times. Your feedback language should be simple enough for a grade 5 (or A2 on CEFR) to understand.\n\n"
+                f"IMPORTANT: The submission is {word_count} words. The task requires about 70 words (maximum 90 words). "
+                "If the word count exceeds 90, you MUST include this as a point to improve.\n"
                 
                 "Task 1C: Group chat. Instructions to candidates. "
                 "1. Respond to the Lilly.\n"
@@ -100,6 +103,83 @@ def writing_task_1_submit():
     task = Task.query.filter_by(name="Writing Task 1 - Group Chat").first()
     if not task:
         task = Task(name="Writing Task 1 - Group Chat", type="writing")
+        db.session.add(task)
+        db.session.commit()
+
+    # ✅ Save to `transcripts` table
+    transcript = Transcript(
+        user_id=current_user.id,
+        task_id=task.id,
+        transcription=response,
+        feedback=feedback
+    )
+    db.session.add(transcript)
+
+    db.session.commit()
+    
+    return render_template(
+        'writing/writing_task_1_feedback.html',
+        response=response,
+        general_comment=feedback.get('general_comment', ''),
+        did_well=feedback.get('did_well', []),
+        could_improve=feedback.get('could_improve', [])
+    )
+
+@writing_bp.route('/writing_task_1_direct_communication_submit', methods=['POST'])
+def writing_task_1_direct_communication_submit():
+    if not current_user.is_authenticated:
+        flash("You must be logged in to submit a writing task.", "warning")
+        return redirect(url_for('auth.login'))
+    
+    response = request.form.get('writingTask1directcommunication').replace("\r\n", "\n")
+    word_count = len(response.strip().split())
+    
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are an instructor for Trinity's ISE Digital Writing exam. "
+                "Your job is to give feedback to candidates based on their performance, following the guidelines below. "
+                "Write in British English at all times. Your feedback language should be simple enough for a grade 5 (or A2 on CEFR) to understand.\n\n"
+                f"IMPORTANT: The submission is {word_count} words. The task requires about 70 words (maximum 90 words). "
+                "If the word count exceeds 90, you MUST include this as a point to improve.\n"
+                
+                "Task 1: Direct communication. "
+                "1. describe a problem you had\n"
+                "2. make suggestions for improvement\n"
+
+                "The prompt for candidates:\n"
+                "Dear student,\n"
+                "You recently used one of our study rooms. Please help us improve by telling us about your experience.\n"
+                "Kind regards,\n"
+                "Library Services\n"
+
+                "Your job is principally to ensure that the candidate has followed the task instructions and, if they haven't, suggest what they could do better."
+                "Ensure that the candidate has described a problem and made suggestions for improvement."
+                "Structure your feedback into three sections: "
+                "1. General Comment, 2. What You Did Well (bullet points), and 3. What You Could Improve (bullet points). "
+                "Return the feedback as JSON with keys: 'general_comment', 'did_well', and 'could_improve'."
+            )
+        },
+        {"role": "user", "content": f"Here is the candidate's submission:\n\n{response}"}
+    ]
+
+    openai_response = client.chat.completions.create(
+        model="gpt-4",
+        messages=messages,
+        temperature=0.7,
+        max_tokens=400
+    )
+
+    try:
+        feedback = json.loads(openai_response.choices[0].message.content.strip())
+    except json.JSONDecodeError:
+        feedback = {"general_comment": "Error processing feedback.", "did_well": [], "could_improve": []}
+
+    # ✅ Get the Writing Task ID (Assuming it's already in the `tasks` table)
+    task = Task.query.filter_by(name="Writing Task 1 - Direct Communication").first()
+    if not task:
+        task = Task(name="Writing Task 1 - Direct Communication", type="writing")
         db.session.add(task)
         db.session.commit()
 
