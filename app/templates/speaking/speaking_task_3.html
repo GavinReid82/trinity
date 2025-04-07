@@ -1,7 +1,192 @@
 {% extends "layout.html" %}
 
-{% block title %}Writing Task{% endblock %}
+{% block title %}Speaking Task 3{% endblock %}
 
 {% block content %}
-<h1>Speaking coming soon!</h1>
+<div class="container mt-4">
+    <div id="taskContainer">
+        <!-- Video player -->
+        <video id="taskVideo" class="w-100 mb-3" controls>
+            <source id="videoSource" src="" type="video/mp4">
+            Your browser does not support the video element.
+        </video>
+
+        <!-- Recording interface (hidden initially) -->
+        <div id="recordingInterface" class="text-center mb-3" style="display: none;">
+            <button id="submitButton" class="btn btn-primary">Submit Recording Early</button>
+        </div>
+
+        <!-- Progress indicator -->
+        <div class="progress mb-3">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const videos = {
+    intro: '/static/videos/task3/intro.mp4',
+    prompt: '/static/videos/task3/prompt.mp4',
+    speaking: '/static/videos/task3/speaking.mp4',
+    followup: '/static/videos/task3/followup.mp4'
+};
+
+let currentStage = 'intro';
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingTimeout = null;
+let recordingStartTimeout = null;
+let isSubmitting = false;
+
+const videoElement = document.getElementById('taskVideo');
+const recordingInterface = document.getElementById('recordingInterface');
+const submitButton = document.getElementById('submitButton');
+const progressBar = document.getElementById('progressBar');
+
+function updateProgress(stage) {
+    const progress = {
+        'intro': 25,
+        'prompt': 50,
+        'speaking': 75,
+        'followup': 100
+    };
+    progressBar.style.width = `${progress[stage]}%`;
+}
+
+async function startRecording(duration) {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            await submitRecording(audioBlob);
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        recordingInterface.style.display = 'block';
+        
+        // Set timeout for automatic submission
+        recordingTimeout = setTimeout(() => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        }, duration * 1000);
+    } catch (error) {
+        console.error('Error starting recording:', error);
+        alert('Failed to start recording. Please ensure microphone access is granted.');
+    }
+}
+
+async function submitRecording(audioBlob) {
+    if (isSubmitting) return;
+    isSubmitting = true;
+
+    const formData = new FormData();
+    formData.append('audio_file', audioBlob);
+    formData.append('stage', currentStage === 'speaking' ? 'main' : 'followup');
+
+    try {
+        const response = await fetch('/speaking/speaking_task_3_submit', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (currentStage === 'speaking') {
+            await playNextVideo();
+        } else if (currentStage === 'followup') {
+            window.location.href = '/speaking/speaking_task_3_feedback';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('There was an error submitting your recording. Please try again.');
+    } finally {
+        isSubmitting = false;
+    }
+}
+
+async function playNextVideo() {
+    // Clear any existing timeouts
+    if (recordingStartTimeout) {
+        clearTimeout(recordingStartTimeout);
+    }
+    if (recordingTimeout) {
+        clearTimeout(recordingTimeout);
+    }
+
+    const stages = ['intro', 'prompt', 'speaking', 'followup'];
+    const currentIndex = stages.indexOf(currentStage);
+    const nextStage = stages[currentIndex + 1];
+    
+    if (nextStage) {
+        currentStage = nextStage;
+        videoElement.src = videos[currentStage];
+        videoElement.play();
+        updateProgress(currentStage);
+
+        // Set up recording based on the stage
+        if (currentStage === 'speaking') {
+            recordingInterface.style.display = 'none';
+            // Wait 4 seconds before starting the recording
+            await new Promise(resolve => {
+                recordingStartTimeout = setTimeout(async () => {
+                    await startRecording(65); // 1 minute and 5 seconds
+                    resolve();
+                }, 4000); // 4 seconds delay
+            });
+        } else if (currentStage === 'followup') {
+            recordingInterface.style.display = 'none';
+            // Wait 8 seconds before starting the recording
+            await new Promise(resolve => {
+                recordingStartTimeout = setTimeout(async () => {
+                    await startRecording(35); // 35 seconds
+                    resolve();
+                }, 8000); // 8 seconds delay
+            });
+        }
+    }
+}
+
+// Event listeners
+videoElement.addEventListener('ended', async () => {
+    if (currentStage !== 'followup') {
+        await playNextVideo();
+    }
+});
+
+submitButton.addEventListener('click', () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        clearTimeout(recordingTimeout);
+        mediaRecorder.stop();
+    }
+});
+
+// Handle page unload to clean up
+window.addEventListener('beforeunload', () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+    }
+    if (recordingStartTimeout) {
+        clearTimeout(recordingStartTimeout);
+    }
+    if (recordingTimeout) {
+        clearTimeout(recordingTimeout);
+    }
+});
+
+// Start with the first video
+videoElement.src = videos.intro;
+</script>
 {% endblock %}

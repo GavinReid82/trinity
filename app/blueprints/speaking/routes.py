@@ -159,9 +159,9 @@ def speaking_task_1_feedback():
     print("Retrieving feedback")
     
     questions = {
-        "1": "What is the best holiday for families with children?",
-        "2": "What do you do to relax?",
-        "3": "I think life is becoming more stressful. Would you agree?"
+        "1": "What do you like to do when you meet your friends?",
+        "2": "I enjoy reading poetry.What do you like to read?",
+        "3": "Do you think the Internet will replace books as a source of information? Why or why not?"
     }
     
     # Try to get feedback from session
@@ -334,3 +334,106 @@ def speaking_task_2_feedback():
     }
     
     return render_template('speaking/speaking_task_2_feedback.html', **context)
+
+@speaking_bp.route('/speaking_task_3_submit', methods=['POST'])
+@login_required
+def speaking_task_3_submit():
+    try:
+        stage = request.form.get('stage', 'main')
+        
+        # Save audio file
+        audio_path, error = save_audio_file(request, task_type='task_3', user_id=current_user.id)
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Transcribe audio
+        transcription, error = transcribe_audio(audio_path)
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Generate feedback
+        feedback, error = generate_feedback(
+            transcription=transcription,
+            task_type='speaking_3',
+            stage=stage
+        )
+        
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Get or create the task
+        task = Task.query.filter_by(name='speaking_task_3').first()
+        if not task:
+            task = Task(name='speaking_task_3', type='speaking')
+            db.session.add(task)
+            db.session.commit()
+
+        # Create transcript record
+        if stage == 'main':
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback
+            )
+        else:
+            # For follow-up, link to the main response
+            main_transcript = Transcript.query.filter_by(
+                user_id=current_user.id,
+                task_id=task.id
+            ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback,
+                main_transcript_id=main_transcript.id if main_transcript else None
+            )
+
+        db.session.add(transcript)
+        db.session.commit()
+
+        # Clean up audio file
+        if os.path.exists(audio_path):
+            os.remove(audio_path)
+
+        return jsonify({
+            'success': True,
+            'feedback': feedback
+        })
+
+    except Exception as e:
+        print(f"Error in speaking_task_3_submit: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@speaking_bp.route('/speaking_task_3_feedback')
+@login_required
+def speaking_task_3_feedback():
+    task = Task.query.filter_by(name='speaking_task_3').first()
+    if not task:
+        flash('Task not found.', 'error')
+        return redirect(url_for('speaking.speaking_task_3'))
+
+    # Get the main response
+    main_transcript = Transcript.query.filter_by(
+        user_id=current_user.id,
+        task_id=task.id
+    ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+
+    # Get the follow-up response
+    follow_up_transcript = None
+    if main_transcript:
+        follow_up_transcript = Transcript.query.filter_by(
+            main_transcript_id=main_transcript.id
+        ).order_by(Transcript.created_at.desc()).first()
+
+    context = {
+        'main_response': main_transcript.transcription if main_transcript else None,
+        'main_feedback': main_transcript.feedback if main_transcript else None,
+        'follow_up_response': follow_up_transcript.transcription if follow_up_transcript else None,
+        'follow_up_feedback': follow_up_transcript.feedback if follow_up_transcript else None,
+        'follow_up_question': "Follow-up question from the video"
+    }
+    
+    return render_template('speaking/speaking_task_3_feedback.html', **context)
