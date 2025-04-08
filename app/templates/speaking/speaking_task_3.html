@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
 
-{% block title %}Speaking Task 3{% endblock %}
+{% block title %}Interacting{% endblock %}
 
 {% block content %}
+<h1 class="page-title">Interacting <img src="{{ url_for('static', filename='images/speaking.jpg') }}" alt="Speaking icon" class="title-icon"></h1>
+
 <div class="container mt-4">
     <div id="taskContainer">
         <!-- Video player -->
@@ -142,7 +144,7 @@ async function playNextVideo() {
             // Wait 4 seconds before starting the recording
             await new Promise(resolve => {
                 recordingStartTimeout = setTimeout(async () => {
-                    await startRecording(65); // 1 minute and 5 seconds
+                    await startRecording(62); // 1 minute and 2 seconds
                     resolve();
                 }, 4000); // 4 seconds delay
             });
@@ -151,7 +153,7 @@ async function playNextVideo() {
             // Wait 8 seconds before starting the recording
             await new Promise(resolve => {
                 recordingStartTimeout = setTimeout(async () => {
-                    await startRecording(35); // 35 seconds
+                    await startRecording(32); // 32 seconds
                     resolve();
                 }, 8000); // 8 seconds delay
             });

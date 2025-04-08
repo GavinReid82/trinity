@@ -1,17 +1,17 @@
 {% extends "layout.html" %}
 
-{% block title %}Interacting Feedback{% endblock %}
+{% block title %}Summarising a talk or conversation Feedback{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Interacting Feedback</h2>
+    <h2 class="mb-4">Summarising a talk or conversation Feedback</h2>
     
     <div class="row">
         <!-- Main Response Section -->
         <div class="col-md-6">
             <div class="card h-100 bg-light">
                 <div class="card-header">
-                    <h3>Main Response (1 minute)</h3>
+                    <h3>Main Response (2 minutes)</h3>
                 </div>
                 <div class="card-body">
                     <h4>Your Response:</h4>
@@ -46,8 +46,8 @@
                     <h3>Follow-up Response (30 seconds)</h3>
                 </div>
                 <div class="card-body">
-                    <!-- <h4>Follow-up Question:</h4>
-                    <p>{{ follow_up_question }}</p> -->
+                    <h4>Follow-up Question:</h4>
+                    <p>{{ follow_up_question }}</p>
 
                     {% if follow_up_response %}
                     <h4>Your Response:</h4>

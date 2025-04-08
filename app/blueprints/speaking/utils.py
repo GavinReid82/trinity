@@ -140,3 +140,102 @@ def generate_follow_up_question(transcription):
         print(f"Error generating follow-up: {e}")
         return "Could you tell me more about what you enjoyed most about this place?"
 
+
+def generate_followup_feedback(main_transcription, followup_transcription, follow_up_question=None, task_type='speaking_2'):
+    """Generate feedback specifically for follow-up responses by checking relevance to main talk and question"""
+    print(f"\n=== generate_followup_feedback ===")
+    print(f"Task type: {task_type}")
+    print(f"Main transcription length: {len(main_transcription)}")
+    print(f"Follow-up transcription length: {len(followup_transcription)}")
+    print(f"Follow-up question: {follow_up_question}")
+    
+    try:
+        # Choose the appropriate system prompt based on the task type
+        if task_type == 'speaking_4':
+            system_prompt = """You are an English speaking examiner.
+            You have been given:
+            1. The candidate's summary of a lecture/talk they listened to
+            2. A follow-up question about pollution in cities
+            3. The candidate's follow-up response to that question
+            
+            Analyze these elements and assess how well the follow-up response:
+            - Directly addresses the specific follow-up question about reducing pollution
+            - Provides relevant and practical suggestions for reducing pollution
+            - Demonstrates understanding of environmental issues in urban contexts
+            - Presents ideas that are logically organized and well-supported
+            
+            Address the candidate as "you" and use the word "you" in your response.
+            Write in British English.
+            Use the following criteria to guide your feedback:
+            - Question relevance: The follow-up response directly answers the question about pollution
+            - Content quality: The suggestions provided are practical, specific and well-explained
+            - Organization: Ideas are presented in a logical sequence with clear progression
+            - Support: Suggestions are supported with reasons or examples
+            
+            Give feedback in the following JSON format:
+                {
+                    "general_comment": "Overall assessment of the response to the pollution question",
+                    "did_well": ["Point 1 about pollution response strengths", "Point 2"],
+                    "can_improve": ["Area 1 to improve in pollution response", "Area 2"]
+                }"""
+        else:  # Default for speaking_2
+            system_prompt = """You are an English speaking examiner.
+            You have been given:
+            1. The candidate's main prepared talk
+            2. A follow-up question about their talk
+            3. The candidate's follow-up response to that question
+            
+            Analyze these elements and assess how well the follow-up response:
+            - Directly addresses the specific follow-up question asked
+            - Maintains consistency with the main talk
+            - Appropriately builds upon or extends ideas from the main talk
+            - Demonstrates understanding of the relationship between the question and the main talk
+            
+            Address the candidate as "you" and use the word "you" in your response.
+            Write in British English.
+            Use the following criteria to guide your feedback:
+            - Question relevance: The follow-up response directly answers the specific question
+            - Content relevance: The follow-up response aligns logically with the main talk
+            - Extension of ideas: The follow-up builds upon rather than simply repeats the main talk
+            - Cohesion: The candidate creates clear links between the follow-up and main talk
+            
+            Give feedback in the following JSON format:
+                {
+                    "general_comment": "Overall assessment that mentions both the question and main talk",
+                    "did_well": ["Point 1 about relevance to question/talk", "Point 2"],
+                    "can_improve": ["Area 1 to improve relevance", "Area 2"]
+                }"""
+
+        # Add the follow-up question to the user content if it's provided
+        user_content = f"Main talk/summary: {main_transcription}\n\n"
+        if follow_up_question:
+            user_content += f"Follow-up question: {follow_up_question}\n\n"
+        user_content += f"Follow-up response: {followup_transcription}"
+
+        response = OpenAI(api_key=os.getenv("OPENAI_API_KEY")).chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content}
+            ],
+            temperature=0.7
+        )
+
+        feedback = response.choices[0].message.content
+        try:
+            # Ensure the response is valid JSON
+            feedback_dict = json.loads(feedback)
+            return feedback_dict, None
+        except json.JSONDecodeError as e:
+            print(f"JSON parsing error: {e}")
+            print(f"Raw GPT response: {feedback}")
+            return {
+                "general_comment": "Error processing feedback",
+                "did_well": [],
+                "can_improve": ["Unable to process feedback. Please try again."]
+            }, "Error parsing feedback"
+
+    except Exception as e:
+        print(f"Error generating follow-up feedback: {str(e)}")
+        return None, str(e)
+

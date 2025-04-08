@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 
-{% block title %}Responding to questions{% endblock %}
+{% block title %}Summarising a talk or conversation{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Responding to questions <img src="{{ url_for('static', filename='images/speaking.jpg') }}" alt="Speaking icon" class="title-icon"></h1>
+<h1 class="page-title">Summarising a talk or conversation <img src="{{ url_for('static', filename='images/speaking.jpg') }}" alt="Speaking icon" class="title-icon"></h1>
 
 <div class="container mt-4">
     <div id="taskContainer">
@@ -27,10 +27,10 @@
 
 <script>
 const videos = {
-    intro: '/static/videos/task1/intro.mp4',
-    Q1: '/static/videos/task1/Q1.mp4',
-    Q2: '/static/videos/task1/Q2.mp4',
-    Q3: '/static/videos/task1/Q3.mp4'
+    intro: '/static/videos/task4/intro.mp4',
+    listening: '/static/videos/task4/listening.mp4',
+    speaking: '/static/videos/task4/speaking.mp4',
+    followup: '/static/videos/task4/followup.mp4'
 };
 
 let currentStage = 'intro';
@@ -39,18 +39,20 @@ let audioChunks = [];
 let recordingTimeout = null;
 let recordingStartTimeout = null;
 let isSubmitting = false;
-let responses = {};
 
 const videoElement = document.getElementById('taskVideo');
 const recordingInterface = document.getElementById('recordingInterface');
 const submitButton = document.getElementById('submitButton');
 const progressBar = document.getElementById('progressBar');
 
-function updateProgress() {
-    const stages = ['intro', 'Q1', 'Q2', 'Q3'];
-    const currentIndex = stages.indexOf(currentStage);
-    const progress = (currentIndex / (stages.length - 1)) * 100;
-    progressBar.style.width = `${progress}%`;
+function updateProgress(stage) {
+    const progress = {
+        'intro': 25,
+        'listening': 50,
+        'speaking': 75,
+        'followup': 100
+    };
+    progressBar.style.width = `${progress[stage]}%`;
 }
 
 async function startRecording(duration) {
@@ -65,16 +67,14 @@ async function startRecording(duration) {
 
         mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            await handleRecording(audioBlob);
+            await submitRecording(audioBlob);
             stream.getTracks().forEach(track => track.stop());
         };
 
         mediaRecorder.start();
         recordingInterface.style.display = 'block';
-        // Reset button state at the start of each recording
         updateSubmitButton('reset');
         
-        // Set timeout for automatic submission
         recordingTimeout = setTimeout(() => {
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 updateSubmitButton('auto');
@@ -87,78 +87,49 @@ async function startRecording(duration) {
     }
 }
 
-async function handleRecording(audioBlob) {
+async function submitRecording(audioBlob) {
     if (isSubmitting) return;
     isSubmitting = true;
 
     try {
-        // Submit the current response for transcription
-        await submitResponse(audioBlob);
+        updateSubmitButton(currentStage === 'speaking' ? 'auto' : 'manual');
         
-        // Move to next question or get feedback
-        if (currentStage === 'Q3') {
-            // All recordings done, get feedback for all responses
-            await getFeedbackAndRedirect();
-        } else {
-            await playNextVideo();
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('There was an error processing your recording. Please try again.');
-        // Reset button state if there's an error
-        updateSubmitButton('reset');
-    } finally {
-        isSubmitting = false;
-    }
-}
+        const formData = new FormData();
+        formData.append('audio_file', audioBlob);
+        formData.append('stage', currentStage === 'speaking' ? 'main' : 'followup');
 
-async function submitResponse(audioBlob) {
-    const formData = new FormData();
-    const questionNumber = currentStage.replace('Q', '');
-    
-    // Create a File object from the Blob
-    const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' });
-    formData.append('audio_file', audioFile);
-    formData.append('question_number', questionNumber);
-
-    try {
-        const response = await fetch('/speaking/speaking_task_1_transcribe', {
+        console.log(`Submitting ${currentStage} recording...`);
+        const response = await fetch('/speaking/speaking_task_4_submit', {
             method: 'POST',
             body: formData
         });
-
+        
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to submit response');
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         const data = await response.json();
-        if (data.error) {
-            throw new Error(data.error);
-        }
         
-        return data;
-        
-    } catch (error) {
-        console.error('Submission error:', error);
-        throw new Error('Failed to submit recording. Please try again.');
-    }
-}
-
-async function getFeedbackAndRedirect() {
-    try {
-        const response = await fetch('/speaking/speaking_task_1_generate_feedback', {
-            method: 'POST'
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to generate feedback');
+        if (!data.success) {
+            throw new Error('Submission was not successful');
         }
 
-        window.location.href = '/speaking/speaking_task_1_feedback';
+        console.log(`Successfully submitted ${currentStage} recording`);
+        
+        // Handle next steps based on current stage
+        if (currentStage === 'speaking') {
+            console.log('Moving to follow-up video...');
+            await playNextVideo();
+        } else if (currentStage === 'followup') {
+            console.log('Redirecting to feedback page...');
+            window.location.href = '/speaking/speaking_task_4_feedback';
+        }
     } catch (error) {
-        console.error('Error generating feedback:', error);
-        alert('There was an error generating feedback. Please try again.');
+        console.error('Error:', error);
+        alert('There was an error submitting your recording. Please try again.');
+        updateSubmitButton('reset');
+    } finally {
+        isSubmitting = false;
     }
 }
 
@@ -171,43 +142,40 @@ async function playNextVideo() {
         clearTimeout(recordingTimeout);
     }
 
-    const stages = ['intro', 'Q1', 'Q2', 'Q3'];
+    const stages = ['intro', 'listening', 'speaking', 'followup'];
     const currentIndex = stages.indexOf(currentStage);
     const nextStage = stages[currentIndex + 1];
     
     if (nextStage) {
+        console.log(`Moving to ${nextStage} stage`);
         currentStage = nextStage;
         videoElement.src = videos[currentStage];
         videoElement.play();
-        updateProgress();
+        updateProgress(currentStage);
 
-        if (nextStage.startsWith('Q')) {
-            // Hide recording interface and reset button state
-            recordingInterface.style.display = 'none';
-            updateSubmitButton('reset');
-            
-            // Set delay: 4 seconds for Q1, 8 seconds for Q2 and Q3
-            const delay = nextStage === 'Q1' ? 4000 : 8000;
-            
+        // Hide recording interface and reset button state
+        recordingInterface.style.display = 'none';
+        updateSubmitButton('reset');
+
+        if (nextStage === 'speaking') {
+            // Wait 6 seconds before starting the recording
             await new Promise(resolve => {
                 recordingStartTimeout = setTimeout(async () => {
-                    await startRecording(35); // 35 seconds recording time
+                    await startRecording(60); // 1 minute recording time
                     resolve();
-                }, delay);
+                }, 6000);
+            });
+        } else if (nextStage === 'followup') {
+            // Wait 6 seconds before starting the recording
+            await new Promise(resolve => {
+                recordingStartTimeout = setTimeout(async () => {
+                    await startRecording(60); // 1 minute recording time
+                    resolve();
+                }, 6000);
             });
         }
     }
 }
-
-// Event listeners
-videoElement.addEventListener('ended', async () => {
-    if (currentStage === 'intro') {
-        await playNextVideo();
-    } else if (currentStage.startsWith('Q') && mediaRecorder && mediaRecorder.state === 'recording') {
-        // If the video ends while still recording, let the recording timeout handle it
-        console.log('Video ended, waiting for recording to complete...');
-    }
-});
 
 function updateSubmitButton(state) {
     const submitButton = document.getElementById('submitButton');
@@ -235,7 +203,17 @@ function updateSubmitButton(state) {
     }
 }
 
-// Update the submit button click handler
+// Event listeners
+videoElement.addEventListener('ended', async () => {
+    if (currentStage === 'intro' || currentStage === 'listening') {
+        await playNextVideo();
+    } else if (currentStage === 'speaking' && mediaRecorder && mediaRecorder.state === 'recording') {
+        // If speaking video ends while still recording, let the recording timeout handle it
+        console.log('Speaking video ended, waiting for recording to complete...');
+    }
+    // Don't automatically play followup video - it will be played after submission completes
+});
+
 submitButton.addEventListener('click', () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
         updateSubmitButton('manual');
@@ -257,7 +235,7 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// Start with the intro video
+// Start with the first video
 videoElement.src = videos.intro;
 </script>
 {% endblock %}

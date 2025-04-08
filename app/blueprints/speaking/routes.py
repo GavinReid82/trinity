@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from app.blueprints.speaking import speaking_bp
 from flask_login import current_user, login_required
 from app.models import db, Task, Transcript
-from app.blueprints.speaking.utils import save_audio_file, transcribe_audio, generate_feedback
+from app.blueprints.speaking.utils import save_audio_file, transcribe_audio, generate_feedback, generate_followup_feedback
 
 
 speaking_bp = Blueprint('speaking', __name__, template_folder='templates')
@@ -62,160 +62,142 @@ def speaking_task_1_q3():
 @speaking_bp.route('/speaking_task_submit', methods=['POST'])
 @login_required
 def speaking_task_submit():
-    # Initialize client inside the route
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     print("="*50)
     print("Starting speaking task submission")
     print(f"Current user ID: {current_user.id}")
     
-    # Clear any old feedback from session
-    session.pop('feedback', None)
-    
-    questions = {
-        "1": "What is the best holiday for families with children?",
-        "2": "What do you do to relax?",
-        "3": "I think life is becoming more stressful. Would you agree?"
-    }
-
-    # Save the audio file
-    audio_path, error = save_audio_file(request)
-    if error:
-        print(f"Error saving audio: {error}")
-        return redirect(url_for('speaking.speaking_task_1_feedback'))
-
-    print(f"Successfully saved audio to: {audio_path}")
-
-    # Transcribe the audio
-    transcription, error = transcribe_audio(audio_path)
-    if error:
-        print(f"Error transcribing: {error}")
-        return redirect(url_for('speaking.speaking_task_1_feedback'))
-
-    print(f"Successfully transcribed: {transcription[:100]}...")
-
-    # Generate feedback
-    feedback, error = generate_feedback(transcription)
-    if error:
-        print(f"Error generating feedback: {error}")
-        return redirect(url_for('speaking.speaking_task_1_feedback'))
-
-    print(f"Successfully generated feedback: {feedback}")
-
     try:
-        current_question = request.form.get('question_number')
-        print(f"Processing question number: {current_question}")
-
-        # Create or get task
-        task_name = f"Speaking Task 1 Q{current_question}"
-        task = Task.query.filter_by(name=task_name, type='speaking').first()
-        if not task:
-            print(f"Creating new task: {task_name}")
-            task = Task(name=task_name, type='speaking')
-            db.session.add(task)
-            db.session.flush()  # Get the ID without committing
-
-        # Create transcript
-        transcript = Transcript(
-            user_id=current_user.id,
-            task_id=task.id,
-            transcription=transcription,
-            feedback=feedback
-        )
-        db.session.add(transcript)
-        db.session.commit()
-        print(f"Successfully saved transcript ID: {transcript.id}")
-
-        # Set session data
-        next_question_number = int(current_question) + 1 if int(current_question) < len(questions) else None
-        session['feedback'] = {
-            'question': questions[current_question],
-            'transcription': transcription,
-            'general_comment': feedback['general_comment'],
-            'did_well': feedback['did_well'],
-            'could_improve': feedback['could_improve'],
-            'next_question': f'speaking.speaking_task_1_q{next_question_number}' if next_question_number else None
+        questions = {
+            "1": "What do you like to do when you meet your friends?",
+            "2": "I enjoy reading poetry. What do you like to read?",
+            "3": "Do you think the Internet will replace books as a source of information? Why or why not?"
         }
-        print("Successfully set session feedback")
+
+        # Save the audio file
+        audio_path, error = save_audio_file(request)
+        if error:
+            print(f"Error saving audio: {error}")
+            return jsonify({'error': error}), 400
+
+        print(f"Successfully saved audio to: {audio_path}")
+
+        # Transcribe the audio
+        transcription, error = transcribe_audio(audio_path)
+        if error:
+            print(f"Error transcribing: {error}")
+            return jsonify({'error': error}), 400
+
+        print(f"Successfully transcribed: {transcription[:100]}...")
+
+        # Generate feedback
+        feedback, error = generate_feedback(transcription)
+        if error:
+            print(f"Error generating feedback: {error}")
+            return jsonify({'error': error}), 400
+
+        print(f"Successfully generated feedback: {feedback}")
+
+        try:
+            current_question = request.form.get('question_number')
+            print(f"Processing question number: {current_question}")
+
+            # Create or get task
+            task_name = f"Speaking Task 1 Q{current_question}"
+            task = Task.query.filter_by(name=task_name, type='speaking').first()
+            if not task:
+                print(f"Creating new task: {task_name}")
+                task = Task(name=task_name, type='speaking')
+                db.session.add(task)
+                db.session.flush()
+
+            # Create transcript
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback
+            )
+            db.session.add(transcript)
+            db.session.commit()
+            print(f"Successfully saved transcript ID: {transcript.id}")
+
+            # Store in session for final feedback
+            if 'task1_responses' not in session:
+                session['task1_responses'] = []
+            
+            session['task1_responses'].append({
+                'question': questions[current_question],
+                'question_number': current_question,
+                'transcription': transcription,
+                'feedback': feedback
+            })
+            session.modified = True
+
+            return jsonify({
+                'success': True,
+                'feedback': feedback,
+                'question': questions[current_question]
+            })
+
+        except Exception as e:
+            print(f"Database error: {str(e)}")
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
+        finally:
+            # Clean up the audio file
+            if audio_path and os.path.exists(audio_path):
+                os.remove(audio_path)
+                print(f"Cleaned up audio file: {audio_path}")
 
     except Exception as e:
-        print(f"Database error: {str(e)}")
-        db.session.rollback()
-        return redirect(url_for('speaking.speaking_task_1_feedback'))
-
-    finally:
-        # Clean up the audio file
-        if audio_path and os.path.exists(audio_path):
-            os.remove(audio_path)
-            print(f"Cleaned up audio file: {audio_path}")
-
-    print("="*50)
-    return redirect(url_for('speaking.speaking_task_1_feedback'))
+        print(f"Error in speaking_task_submit: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 
-@speaking_bp.route('/speaking_task_1_feedback', methods=['GET'])
+@speaking_bp.route('/speaking_task_1_feedback')
 @login_required
 def speaking_task_1_feedback():
     print("="*50)
     print("Retrieving feedback")
     
-    questions = {
-        "1": "What do you like to do when you meet your friends?",
-        "2": "I enjoy reading poetry.What do you like to read?",
-        "3": "Do you think the Internet will replace books as a source of information? Why or why not?"
-    }
+    # Get all responses from session
+    feedback_list = session.get('task1_responses', [])
+    print(f"Session feedback list: {feedback_list}")
     
-    # Try to get feedback from session
-    feedback = session.get('feedback', {})
-    print(f"Session feedback: {feedback}")
-    
-    if not feedback:
+    if not feedback_list:
         print("No session feedback, checking database")
-        # Get the question number from the URL parameters
-        question_number = request.args.get('question_number', '1')
-        task_name = f"Speaking Task 1 Q{question_number}"
+        feedback_list = []
         
-        # Get the specific task for this question
-        speaking_task = Task.query.filter_by(name=task_name, type='speaking').first()
-        if speaking_task:
-            # Look for transcript for this specific task
-            latest_transcript = Transcript.query.filter_by(
-                user_id=current_user.id,
-                task_id=speaking_task.id
-            ).order_by(Transcript.created_at.desc()).first()
+        # Get feedback for all questions from database
+        for q_num in range(1, 4):
+            task_name = f"Speaking Task 1 Q{q_num}"
+            task = Task.query.filter_by(name=task_name, type='speaking').first()
             
-            if latest_transcript:
-                print(f"Found latest transcript ID: {latest_transcript.id}")
+            if task:
+                transcript = Transcript.query.filter_by(
+                    user_id=current_user.id,
+                    task_id=task.id
+                ).order_by(Transcript.created_at.desc()).first()
                 
-                # Calculate next question
-                next_q = int(question_number) + 1 if int(question_number) < len(questions) else None
-                next_question = f'speaking.speaking_task_1_q{next_q}' if next_q else None
-                
-                feedback = {
-                    'question': questions.get(question_number, 'Unknown question'),
-                    'question_number': question_number,
-                    'transcription': latest_transcript.transcription,
-                    'general_comment': latest_transcript.feedback.get('general_comment', ''),
-                    'did_well': latest_transcript.feedback.get('did_well', []),
-                    'could_improve': latest_transcript.feedback.get('could_improve', []),
-                    'next_question': next_question
-                }
-            else:
-                print("No transcript found in database")
-        else:
-            print("No speaking task found in database")
+                if transcript:
+                    feedback_list.append({
+                        'question_number': q_num,
+                        'question': {
+                            "1": "What do you like to do when you meet your friends?",
+                            "2": "I enjoy reading poetry. What do you like to read?",
+                            "3": "Do you think the Internet will replace books as a source of information? Why or why not?"
+                        }[str(q_num)],
+                        'transcription': transcript.transcription,
+                        'feedback': transcript.feedback
+                    })
     
-    print(f"Final feedback being rendered: {feedback}")
+    print(f"Final feedback list being rendered: {feedback_list}")
     print("="*50)
     
     return render_template(
         'speaking/speaking_task_1_feedback.html',
-        question=feedback.get('question', 'Unknown question'),
-        question_number=feedback.get('question_number', '1'),
-        transcription=feedback.get('transcription', 'No transcription available.'),
-        general_comment=feedback.get('general_comment', 'No general comment provided.'),
-        did_well=feedback.get('did_well', []),
-        could_improve=feedback.get('could_improve', []),
-        next_question=feedback.get('next_question', None)
+        feedback_list=feedback_list
     )
 
 @speaking_bp.route('/speaking_task_2_submit', methods=['POST'])
@@ -235,16 +217,6 @@ def speaking_task_2_submit():
             transcription = transcription[0]
         print(f"✅ Transcription: {transcription}")
 
-        # Generate feedback
-        feedback, error = generate_feedback(
-            transcription=transcription,
-            task_type='speaking_2',
-            stage=stage
-        )
-        
-        if error:
-            return jsonify({'error': error}), 400
-
         # Get the task_id for speaking_task_2
         task = Task.query.filter_by(name='speaking_task_2').first()
         if not task:
@@ -253,46 +225,77 @@ def speaking_task_2_submit():
             db.session.add(task)
             db.session.commit()
 
-        # For main response
+        # Generate appropriate feedback based on stage
         if stage == 'main':
-            transcript = Transcript(
-                user_id=current_user.id,
-                task_id=task.id,
+            # Generate regular feedback for main talk
+            feedback, error = generate_feedback(
                 transcription=transcription,
-                feedback=feedback  # This should work as the column is JSON type
+                task_type='speaking_2',
+                stage=stage
             )
-        else:
-            # For follow-up, link to the main response
-            main_transcript = Transcript.query.filter_by(
-                user_id=current_user.id,
-                task_id=task.id
-            ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+            
+            if error:
+                return jsonify({'error': error}), 400
 
+            # Define follow-up question (either hardcoded or generated)
+            follow_up_question = "What advice do you have for someone who wants to learn more about this topic?"
+            
+            # Create transcript for main response
             transcript = Transcript(
                 user_id=current_user.id,
                 task_id=task.id,
                 transcription=transcription,
                 feedback=feedback,
-                main_transcript_id=main_transcript.id if main_transcript else None
+                # You might need to add this field to your model
+                # follow_up_question=follow_up_question  
             )
-
-        db.session.add(transcript)
-        db.session.commit()
-
-        # Clean up the audio file
-        try:
-            os.remove(audio_path)
-        except Exception as e:
-            print(f"Warning: Could not delete audio file: {e}")
-
-        # Return response based on stage
-        if stage == 'main':
+            db.session.add(transcript)
+            db.session.commit()
+            
+            # Store the follow-up question in session for later use
+            session['follow_up_question'] = follow_up_question
+            
             return jsonify({
                 'success': True,
                 'feedback': feedback,
-                'follow_up_question': "What advice do you have for someone who wants to learn more about this topic?"
+                'follow_up_question': follow_up_question
             })
         else:
+            # For follow-up, get the main response to check consistency
+            main_transcript = Transcript.query.filter_by(
+                user_id=current_user.id,
+                task_id=task.id
+            ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+
+            if not main_transcript:
+                return jsonify({'error': 'No main response found'}), 400
+            
+            # Get the follow-up question from session or use default
+            follow_up_question = session.get('follow_up_question', 
+                "What advice do you have for someone who wants to learn more about this topic?")
+
+            # Generate specialized follow-up feedback
+            feedback, error = generate_followup_feedback(
+                main_transcription=main_transcript.transcription,
+                followup_transcription=transcription,
+                follow_up_question=follow_up_question,
+                task_type='speaking_2'
+            )
+            
+            if error:
+                return jsonify({'error': error}), 400
+
+            # Create transcript for follow-up
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback,
+                main_transcript_id=main_transcript.id
+            )
+            db.session.add(transcript)
+            db.session.commit()
+            
             return jsonify({
                 'success': True,
                 'feedback': feedback
@@ -330,7 +333,7 @@ def speaking_task_2_feedback():
         'main_feedback': main_transcript.feedback if main_transcript else None,
         'follow_up_response': follow_up_transcript.transcription if follow_up_transcript else None,
         'follow_up_feedback': follow_up_transcript.feedback if follow_up_transcript else None,
-        'follow_up_question': "What advice do you have for someone who wants to learn more about this topic?"
+        'follow_up_question': "Will you still find this interesting in 10 years?"
     }
     
     return render_template('speaking/speaking_task_2_feedback.html', **context)
@@ -437,3 +440,316 @@ def speaking_task_3_feedback():
     }
     
     return render_template('speaking/speaking_task_3_feedback.html', **context)
+
+@speaking_bp.route('/speaking_task_1_submit_all', methods=['POST'])
+@login_required
+def speaking_task_1_submit_all():
+    try:
+        all_feedback = []
+        questions = {
+            "1": "What do you like to do when you meet your friends?",
+            "2": "I enjoy reading poetry. What do you like to read?",
+            "3": "Do you think the Internet will replace books as a source of information? Why or why not?"
+        }
+
+        for q_num in range(1, 4):
+            audio_file_key = f'audio_file_{q_num}'
+            if audio_file_key not in request.files:
+                return jsonify({'error': f'Missing audio file for question {q_num}'}), 400
+
+            # Save the audio file
+            audio_path, error = save_audio_file(request, file_key=audio_file_key)
+            if error:
+                return jsonify({'error': error}), 400
+
+            # Transcribe the audio
+            transcription, error = transcribe_audio(audio_path)
+            if error:
+                return jsonify({'error': error}), 400
+
+            # Generate feedback
+            feedback, error = generate_feedback(transcription)
+            if error:
+                return jsonify({'error': error}), 400
+
+            # Create or get task
+            task_name = f"Speaking Task 1 Q{q_num}"
+            task = Task.query.filter_by(name=task_name, type='speaking').first()
+            if not task:
+                task = Task(name=task_name, type='speaking')
+                db.session.add(task)
+                db.session.flush()
+
+            # Create transcript
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback
+            )
+            db.session.add(transcript)
+
+            # Store feedback for session
+            all_feedback.append({
+                'question': questions[str(q_num)],
+                'question_number': q_num,
+                'transcription': transcription,
+                'feedback': feedback
+            })
+
+            # Clean up audio file
+            if os.path.exists(audio_path):
+                os.remove(audio_path)
+
+        db.session.commit()
+        session['all_feedback'] = all_feedback
+        
+        return jsonify({'success': True})
+
+    except Exception as e:
+        print(f"Error in speaking_task_1_submit_all: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@speaking_bp.route('/speaking_task_1_feedback_all')
+@login_required
+def speaking_task_1_feedback_all():
+    all_feedback = session.get('all_feedback', [])
+    if not all_feedback:
+        flash('No feedback available. Please complete the speaking task first.', 'error')
+        return redirect(url_for('speaking.speaking_task_1_q1'))
+    
+    return render_template('speaking/speaking_task_1_feedback_all.html', feedback_list=all_feedback)
+
+@speaking_bp.route('/speaking_task_1_transcribe', methods=['POST'])
+@login_required
+def speaking_task_1_transcribe():
+    try:
+        # Save the audio file
+        audio_path, error = save_audio_file(request)
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Transcribe the audio
+        transcription, error = transcribe_audio(audio_path)
+        if error:
+            return jsonify({'error': error}), 400
+
+        current_question = request.form.get('question_number')
+
+        # Create or get task
+        task_name = f"Speaking Task 1 Q{current_question}"
+        task = Task.query.filter_by(name=task_name, type='speaking').first()
+        if not task:
+            task = Task(name=task_name, type='speaking')
+            db.session.add(task)
+            db.session.flush()
+
+        # Create transcript without feedback initially
+        transcript = Transcript(
+            user_id=current_user.id,
+            task_id=task.id,
+            transcription=transcription,
+            feedback={}  # Empty feedback for now
+        )
+        db.session.add(transcript)
+        db.session.commit()
+
+        # Clean up audio file
+        if os.path.exists(audio_path):
+            os.remove(audio_path)
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        print(f"Error in speaking_task_1_transcribe: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@speaking_bp.route('/speaking_task_1_generate_feedback', methods=['POST'])
+@login_required
+def speaking_task_1_generate_feedback():
+    try:
+        questions = {
+            "1": "What do you like to do when you meet your friends?",
+            "2": "I enjoy reading poetry. What do you like to read?",
+            "3": "Do you think the Internet will replace books as a source of information? Why or why not?"
+        }
+
+        all_feedback = []
+        
+        # Get all transcripts for this task
+        for q_num in range(1, 4):
+            task_name = f"Speaking Task 1 Q{q_num}"
+            task = Task.query.filter_by(name=task_name, type='speaking').first()
+            
+            if task:
+                transcript = Transcript.query.filter_by(
+                    user_id=current_user.id,
+                    task_id=task.id
+                ).order_by(Transcript.created_at.desc()).first()
+
+                if transcript:
+                    # Generate feedback for this transcript
+                    feedback, error = generate_feedback(transcript.transcription)
+                    if error:
+                        return jsonify({'error': error}), 400
+
+                    # Update transcript with feedback
+                    transcript.feedback = feedback
+                    
+                    # Store for session
+                    all_feedback.append({
+                        'question': questions[str(q_num)],
+                        'question_number': q_num,
+                        'transcription': transcript.transcription,
+                        'feedback': feedback
+                    })
+
+        # Save all updates
+        db.session.commit()
+
+        # Store in session for feedback page
+        session['task1_responses'] = all_feedback
+        session.modified = True
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        print(f"Error in speaking_task_1_generate_feedback: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@speaking_bp.route('/speaking_task_4_submit', methods=['POST'])
+@login_required
+def speaking_task_4_submit():
+    try:
+        stage = request.form.get('stage', 'main')
+        
+        # Save audio file
+        audio_path, error = save_audio_file(request, task_type='task_4', user_id=current_user.id)
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Transcribe audio
+        transcription, error = transcribe_audio(audio_path)
+        if error:
+            return jsonify({'error': error}), 400
+
+        # Get the task_id for speaking_task_4
+        task = Task.query.filter_by(name='speaking_task_4').first()
+        if not task:
+            # Create the task if it doesn't exist
+            task = Task(name='speaking_task_4', type='speaking')
+            db.session.add(task)
+            db.session.commit()
+
+        # Generate appropriate feedback based on stage
+        if stage == 'main':
+            # Generate regular feedback for the summary
+            feedback, error = generate_feedback(
+                transcription=transcription,
+                task_type='speaking_4',
+                stage=stage
+            )
+            
+            if error:
+                return jsonify({'error': error}), 400
+
+            # Define follow-up question (fixed for Task 4)
+            follow_up_question = "What other steps could be taken to reduce pollution in cities?"
+            
+            # Create transcript for main response
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback
+            )
+            db.session.add(transcript)
+            db.session.commit()
+            
+            # Store the follow-up question in session for later use
+            session['task4_follow_up_question'] = follow_up_question
+            
+            return jsonify({
+                'success': True,
+                'feedback': feedback,
+                'follow_up_question': follow_up_question
+            })
+        else:
+            # For follow-up, get the main response
+            main_transcript = Transcript.query.filter_by(
+                user_id=current_user.id,
+                task_id=task.id
+            ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+
+            if not main_transcript:
+                return jsonify({'error': 'No main response found'}), 400
+            
+            # Get the follow-up question from session or use default
+            follow_up_question = session.get('task4_follow_up_question', 
+                "What other steps could be taken to reduce pollution in cities?")
+
+            # Generate specialized follow-up feedback
+            feedback, error = generate_followup_feedback(
+                main_transcription=main_transcript.transcription,
+                followup_transcription=transcription,
+                follow_up_question=follow_up_question,
+                task_type='speaking_4'  # Specify task_type for appropriate feedback
+            )
+            
+            if error:
+                return jsonify({'error': error}), 400
+
+            # Create transcript for follow-up
+            transcript = Transcript(
+                user_id=current_user.id,
+                task_id=task.id,
+                transcription=transcription,
+                feedback=feedback,
+                main_transcript_id=main_transcript.id
+            )
+            db.session.add(transcript)
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'feedback': feedback
+            })
+
+    except Exception as e:
+        print(f"Exception occurred: {str(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': str(e)}), 500
+
+@speaking_bp.route('/speaking_task_4_feedback')
+@login_required
+def speaking_task_4_feedback():
+    task = Task.query.filter_by(name='speaking_task_4').first()
+    if not task:
+        flash('Task not found.', 'error')
+        return redirect(url_for('speaking.speaking_task_4'))
+
+    # Get the main response (one without a main_transcript_id)
+    main_transcript = Transcript.query.filter_by(
+        user_id=current_user.id,
+        task_id=task.id
+    ).filter(Transcript.main_transcript_id.is_(None)).order_by(Transcript.created_at.desc()).first()
+
+    # Get the follow-up response (linked to the main response)
+    follow_up_transcript = None
+    if main_transcript:
+        follow_up_transcript = Transcript.query.filter_by(
+            main_transcript_id=main_transcript.id
+        ).order_by(Transcript.created_at.desc()).first()
+
+    context = {
+        'main_response': main_transcript.transcription if main_transcript else None,
+        'main_feedback': main_transcript.feedback if main_transcript else None,
+        'follow_up_response': follow_up_transcript.transcription if follow_up_transcript else None,
+        'follow_up_feedback': follow_up_transcript.feedback if follow_up_transcript else None,
+        'follow_up_question': "What other steps could be taken to reduce pollution in cities?"
+    }
+    
+    return render_template('speaking/speaking_task_4_feedback.html', **context)
