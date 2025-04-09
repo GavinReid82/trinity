@@ -1,5 +1,13 @@
 {% extends "layout.html" %}
 
+{# Add cache prevention headers #}
+{% block head %}
+    {{ super() }}
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+{% endblock %}
+
 {% block title %}Interacting Feedback{% endblock %}
 
 {% block content %}
@@ -17,9 +25,9 @@
                     <h4>Your Response:</h4>
                     <p>{{ main_response }}</p>
 
-                    {% if main_feedback %}
+                    <!-- {% if main_feedback %}
                     <h4>Feedback:</h4>
-                    <p>{{ main_feedback.general_comment }}</p>
+                    <p>{{ main_feedback.general_comment }}</p> -->
 
                     <h4>What You Did Well:</h4>
                     <ul>
@@ -53,9 +61,9 @@
                     <h4>Your Response:</h4>
                     <p>{{ follow_up_response }}</p>
 
-                    {% if follow_up_feedback %}
+                    <!--{% if follow_up_feedback %}
                     <h4>Feedback:</h4>
-                    <p>{{ follow_up_feedback.general_comment }}</p>
+                    <p>{{ follow_up_feedback.general_comment }}</p> -->
 
                     <h4>What You Did Well:</h4>
                     <ul>
@@ -78,8 +86,9 @@
     </div>
 
     <div class="text-center my-4">
-        <a href="{{ url_for('speaking.speaking_task_2') }}" class="btn btn-primary">Try Again</a>
+        <a href="{{ url_for('speaking.speaking_task_3') }}" class="btn btn-primary">Try Again</a>
         <a href="{{ url_for('speaking.speaking_home') }}" class="btn btn-secondary">Back to Speaking</a>
+        <a href="{{ url_for('speaking.speaking_task_4') }}" class="btn btn-primary btn-lg">Next: Summarising a talk or conversation</a>
     </div>
 </div>
 {% endblock %}

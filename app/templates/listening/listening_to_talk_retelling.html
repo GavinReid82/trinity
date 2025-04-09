@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <!-- Questions without options -->
+        <!-- Questions without options - Keep these for reference -->
         <div>
             <p>1. When is the best time to see cactus flowers?</p>
             <p>2. What kinds of products contain cactus flowers?</p>
@@ -46,17 +46,26 @@
     <!-- Answer Options -->
     <div class="col-12">
         <div class="card h-100">
+             <div class="card-header">
+                 <h3>Questions</h3>
+                 <!-- Add instruction hints for interaction -->
+                 <div class="alert alert-info">
+                     <p>◗ Click an option to select it.</p>
+                     <p>◗ Right-click (or Control-click) an option to cross it out.</p>
+                     <p>◗ Select only one option per question.</p>
+                 </div>
+             </div>
             <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
                 <form id="quizForm">
                     <!-- Question 1 -->
                     <div class="question">
                         <p>1. When is the best time to see cactus flowers?</p>
                     </div>
-                    <div class="btn-group-vertical w-60" role="group">
-                        <button type="button" class="btn btn-outline-primary" data-question="1">evening</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="1">morning</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="1">afternoon</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="1">night</button>
+                    <div class="btn-group-vertical w-100" role="group"> {# Changed w-60 to w-100 for consistency #}
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="1">evening</button> {# Added text-start #}
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="1">morning</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="1">afternoon</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="1">night</button>
                     </div>
 
                     <!-- Question 2 -->
@@ -64,10 +73,10 @@
                         <p>2. What kinds of products contain cactus flowers?</p>
                     </div>
                     <div class="btn-group-vertical w-100" role="group">
-                        <button type="button" class="btn btn-outline-primary" data-question="2">foods</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="2">drinks</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="2">medicines</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="2">creams</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="2">foods</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="2">drinks</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="2">medicines</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="2">creams</button>
                     </div>
 
                     <!-- Question 3 -->
@@ -75,10 +84,10 @@
                         <p>3. What did the students do after the lecture?</p>
                     </div>
                     <div class="btn-group-vertical w-100" role="group">
-                        <button type="button" class="btn btn-outline-primary" data-question="3">They looked at some cactus plants.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="3">They made a film about cactus plants.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="3">They saw a video about cactus plants.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="3">They talked about cactus plants.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="3">They looked at some cactus plants.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="3">They made a film about cactus plants.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="3">They saw a video about cactus plants.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="3">They talked about cactus plants.</button>
                     </div>
 
                     <!-- Question 4 -->
@@ -86,10 +95,10 @@
                         <p>4. What is the talk mainly about?</p>
                     </div>
                     <div class="btn-group-vertical w-100" role="group">
-                        <button type="button" class="btn btn-outline-primary" data-question="4">the different types of cactuses</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="4">how cactuses grow and live</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="4">how a cactus can kill animals</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="4">the use of cactus on your face</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="4">the different types of cactuses</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="4">how cactuses grow and live</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="4">how a cactus can kill animals</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="4">the use of cactus on your face</button>
                     </div>
 
                     <!-- Question 5 -->
@@ -97,10 +106,10 @@
                         <p>5. What fact about cactuses do both speakers find surprising?</p>
                     </div>
                     <div class="btn-group-vertical w-100" role="group">
-                        <button type="button" class="btn btn-outline-primary" data-question="5">They need little water.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="5">They live a long time.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="5">They have a thick skin.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="5">They are very prickly.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="5">They need little water.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="5">They live a long time.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="5">They have a thick skin.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="5">They are very prickly.</button>
                     </div>
 
                     <!-- Question 6 -->
@@ -108,10 +117,10 @@
                         <p>6. What did the woman think of the lecture overall?</p>
                     </div>
                     <div class="btn-group-vertical w-100" role="group">
-                        <button type="button" class="btn btn-outline-primary" data-question="6">It was interesting.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="6">It was painful.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="6">It was amusing.</button>
-                        <button type="button" class="btn btn-outline-primary" data-question="6">It was shocking.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was interesting.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was painful.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was amusing.</button>
+                        <button type="button" class="btn btn-outline-primary text-start" data-question="6">It was shocking.</button>
                     </div>
                 </form>
                 <div class="text-center mt-4">
@@ -124,8 +133,9 @@
 
 {% block scripts %}
 <script>
+// Copied and adapted from reading_a_paired_text.html
 document.addEventListener('DOMContentLoaded', function() {
-    // Correct answers for each question
+    // Correct answers for THIS listening task
     const correctAnswers = {
         1: "morning",
         2: "creams",
@@ -135,66 +145,94 @@ document.addEventListener('DOMContentLoaded', function() {
         6: "It was interesting."
     };
 
-    // Handle answer selection
     const buttons = document.querySelectorAll('.btn-outline-primary');
     buttons.forEach(button => {
+
+        // Listener 1: Handle LEFT-click for selecting answers
         button.addEventListener('click', function(e) {
+            if (e.button !== 0) { return; }
             const question = this.dataset.question;
-            // Remove active class from all buttons in this question group
             document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
                 btn.classList.remove('active');
             });
-            // Add active class to clicked button
             this.classList.add('active');
+            this.classList.remove('crossed-out'); // Remove cross-out when selecting
         });
 
-        // Handle right-click to cross out
+        // Listener 2: Handle RIGHT-click (or Control-click on Mac) to toggle cross out
         button.addEventListener('contextmenu', function(e) {
             e.preventDefault();
-            this.classList.toggle('text-decoration-line-through');
+            if (this.classList.contains('active')) { return; }
+            this.classList.toggle('crossed-out');
         });
     });
+
 
     // Handle submit button click
     document.getElementById('submitBtn').addEventListener('click', function() {
         // Disable the submit button
         this.disabled = true;
-        
+        // Disable all answer buttons after submission
+        buttons.forEach(btn => btn.disabled = true);
+
         let score = 0;
         const answers = {};
-        
-        // Check each question
-        Object.entries(correctAnswers).forEach(([question, correctAnswer]) => {
-            const selectedButton = document.querySelector(`[data-question="${question}"].active`);
-            if (selectedButton) {
-                const selectedAnswer = selectedButton.textContent.trim();
-                answers[question] = selectedAnswer;
-                
-                if (selectedAnswer === correctAnswer) {
-                    // Correct answer - add green checkmark
-                    selectedButton.classList.add('btn-success', 'text-white');
-                    selectedButton.innerHTML = `${selectedAnswer} <i class="bi bi-check-circle-fill"></i>`;
-                    score++;
-                } else {
-                    // Incorrect answer - add red cross
-                    selectedButton.classList.add('btn-danger', 'text-white');
-                    selectedButton.innerHTML = `${selectedAnswer} <i class="bi bi-x-circle-fill"></i>`;
-                    
-                    // Show correct answer in green
-                    const correctButton = Array.from(document.querySelectorAll(`[data-question="${question}"]`))
-                        .find(btn => btn.textContent.trim() === correctAnswer);
-                    if (correctButton) {
-                        correctButton.classList.add('btn-success', 'text-white');
-                        correctButton.innerHTML = `${correctAnswer} <i class="bi bi-check-circle-fill"></i>`;
-                    }
-                }
-            }
+
+        // --- Stage 1: Collect Answers ---
+        Object.keys(correctAnswers).forEach(question => {
+             const selectedButton = document.querySelector(`[data-question="${question}"].active`);
+             if (selectedButton) {
+                 const selectedAnswer = selectedButton.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, '');
+                 answers[question] = selectedAnswer;
+                 if (selectedAnswer === correctAnswers[question]) {
+                     score++;
+                 }
+             } else {
+                  answers[question] = null;
+             }
         });
 
-        // Send answers to server
+
+        // --- Stage 2: Apply Visual Feedback ---
+        Object.entries(correctAnswers).forEach(([question, correctAnswer]) => {
+            document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
+                const buttonText = btn.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, ''); // Get text without icon
+                const isSelected = btn.classList.contains('active');
+                const isCorrect = (buttonText === correctAnswer);
+
+                // Clear ALL previous styles, including crossed-out
+                btn.classList.remove('active', 'crossed-out', 'btn-success', 'btn-danger', 'text-white', 'btn-outline-success', 'btn-outline-primary', 'selected-answer-feedback');
+                // Reset icon/text
+                btn.innerHTML = buttonText;
+                // Explicitly remove text decoration
+                btn.style.textDecoration = 'none';
+
+                // Apply new styles based on selection and correctness
+                if (isSelected) {
+                    // User's selected answer - keep yellow highlight
+                    btn.classList.add('selected-answer-feedback'); // Adds yellow bg, black text, specific border
+                    if (isCorrect) {
+                        // Correct selection
+                         btn.innerHTML = `${buttonText} <i class="bi bi-check-circle-fill text-success"></i>`; // Green check
+                    } else {
+                        // Incorrect selection
+                         btn.innerHTML = `${buttonText} <i class="bi bi-x-circle-fill text-danger"></i>`; // Red cross
+                    }
+                } else if (isCorrect) {
+                    // The correct answer, but wasn't selected by user
+                    btn.classList.add('btn-outline-success'); // Green outline
+                } else {
+                    // Incorrect answer, not selected by user
+                    btn.classList.add('btn-outline-primary'); // Standard outline
+                }
+            });
+        });
+
+        // --- Stage 3: Send answers to server ---
         console.log('Sending answers:', answers);
         console.log('Score:', score);
-        
+
+        // *** UPDATE FETCH URL for this task ***
         fetch('/listening/talk-retelling/submit', {
             method: 'POST',
             headers: {
@@ -210,12 +248,22 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Server response:', data);
             if (data.status === 'success') {
                 console.log('Answers saved successfully');
+                 // Optionally display the score or a success message
+                 // Example: alert(`Your score: ${score}/${Object.keys(correctAnswers).length}`);
             } else {
                 console.error('Error saving answers:', data.message);
+                alert('There was an error submitting your answers. Please try again.');
+                 // Re-enable buttons if submission failed
+                 this.disabled = false;
+                 buttons.forEach(btn => btn.disabled = false);
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('There was an network error submitting your answers. Please check your connection and try again.');
+             // Re-enable buttons on network error
+             this.disabled = false;
+             buttons.forEach(btn => btn.disabled = false);
         });
     });
 });

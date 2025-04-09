@@ -95,11 +95,14 @@ async function submitRecording(audioBlob) {
         const formData = new FormData();
         formData.append('audio_file', audioBlob);
         formData.append('stage', currentStage === 'speaking' ? 'main' : 'followup');
+        formData.append('timestamp', Date.now());
 
-        console.log(`Submitting ${currentStage} recording...`);
+        console.log(`Submitting ${currentStage} recording with stage: ${formData.get('stage')}`);
+
         const response = await fetch('/speaking/speaking_task_2_submit', {
             method: 'POST',
-            body: formData
+            body: formData,
+            cache: 'no-cache'
         });
         
         if (!response.ok) {
@@ -167,7 +170,7 @@ async function playNextVideo() {
             // Wait 12 seconds before starting the recording
             await new Promise(resolve => {
                 recordingStartTimeout = setTimeout(async () => {
-                    await startRecording(32); // 32 seconds
+                    await startRecording(30); // 30 seconds
                     resolve();
                 }, 7000);
             });
@@ -186,7 +189,7 @@ function updateSubmitButton(state) {
             break;
         case 'auto':
             submitButton.className = 'btn btn-warning';
-            submitButton.textContent = 'Time\'s up! Submitting response...';
+            submitButton.textContent = 'Submitting response, please wait...';
             submitButton.disabled = true;
             break;
         case 'reset':

@@ -22,7 +22,7 @@
                     <h3>Reading Texts</h3>
                 </div>
                 <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
-                    <h4 class="bg-primary text-white p-2 rounded">Reading Text A</h4>
+                    <h4 class="p-2" style="background-color: #50144b; color: white;">Reading Text A</h4>
                     <h5>Business Negotiation</h5>
                     <p>Negotiation can be defined as a dialogue involving two or more parties for the purpose of reaching an agreement satisfactory to all.</p>
                     <p>In the business world, people negotiate all the time, within and between companies. Examples include: a buyer and a seller negotiating a satisfactory price for a product; two businesses negotiating the terms under which they will work together; an individual negotiating the terms of his contract with an employer.</p>
@@ -35,7 +35,7 @@
                     <h5>Communication</h5>
                     <p>Negotiators should be polite and professional – but persistent. Your manner should be adapted to your partner – again this comes back to knowledge. While some people will be offended by overly forward haggling, others will expect and indeed engage in such aggressive behaviour. Skilled negotiators, however, must make all parties feel like they have derived value from a deal.</p>
 
-                    <h4 class="bg-primary text-white p-2 rounded">Reading Text B</h4>
+                    <h4 class="p-2" style="background-color: #50144b; color: white;">Reading Text B</h4>
                     <h5>Will NyS revolutionise your business?</h5>
                     <p>By Frank Shaughnessy for Business Monthly</p>
                     <p>NyS ('Negotiate your Success') is a half-day long series of lectures on successful negotiation. The course was a national sensation in America last year, visiting all the major cities including Chicago, Boston, and New York. Now touring the capitals of Europe, it was in Paris on Monday and London on Friday. The NyS team stopped in my own hometown of Dublin at the weekend, promising to make us all unimaginably rich.</p>
@@ -174,7 +174,7 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Correct answers for each question
+    // Correct answers (keep this)
     const correctAnswers = {
         1: "a business student",
         2: "to select the appropriate strategy and communication style",
@@ -188,66 +188,114 @@ document.addEventListener('DOMContentLoaded', function() {
         10: "simplistic"
     };
 
-    // Handle answer selection
     const buttons = document.querySelectorAll('.btn-outline-primary');
     buttons.forEach(button => {
+        // Handle LEFT-click to select answer OR Control/Cmd-Click to cross out
         button.addEventListener('click', function(e) {
             const question = this.dataset.question;
-            // Remove active class from all buttons in this question group
+
+            // Check if Control key (or Command key on Mac) was pressed
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault(); // Prevent any default browser action for ctrl/cmd click
+
+                // Logic for crossing out (only if not the selected answer)
+                if (!this.classList.contains('active')) {
+                    this.classList.toggle('crossed-out');
+                }
+                // Stop processing here for ctrl/cmd click
+                return;
+            }
+
+            // --- Normal Click Logic (No modifier key pressed) ---
+
+            // Remove 'active' class from all buttons in this question group
+            // ** BUT LEAVE 'crossed-out' ALONE on other buttons **
             document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
                 btn.classList.remove('active');
+                // REMOVED: btn.classList.remove('crossed-out'); // DON'T DO THIS HERE
             });
-            // Add active class to clicked button
+
+            // Add 'active' class to the clicked button
             this.classList.add('active');
+            // Ensure the newly selected button is definitely NOT crossed out
+            this.classList.remove('crossed-out');
+
         });
 
-        // Handle right-click to cross out
+        // Handle RIGHT-click (or Control-click on Mac) to toggle cross out - Use this if the click handler above doesn't work well
+        // Ensure you only have ONE method (either the combined click listener above OR this contextmenu one)
+        /*
         button.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            this.classList.toggle('text-decoration-line-through');
+            e.preventDefault(); // Prevent browser context menu
+            
+            // If the button is currently selected (active), don't cross it out
+            if (this.classList.contains('active')) {
+                return; 
+            }
+            
+            // Toggle the crossed-out class (requires CSS rule)
+            this.classList.toggle('crossed-out'); 
         });
+        */
     });
 
     // Handle submit button click
     document.getElementById('submitBtn').addEventListener('click', function() {
         // Disable the submit button
         this.disabled = true;
-        
+        // Disable all answer buttons after submission
+        buttons.forEach(btn => btn.disabled = true);
+
         let score = 0;
         const answers = {};
-        
+
         // Check each question
         Object.entries(correctAnswers).forEach(([question, correctAnswer]) => {
             const selectedButton = document.querySelector(`[data-question="${question}"].active`);
+            let isCorrect = false;
+            let selectedAnswer = null;
+
             if (selectedButton) {
-                const selectedAnswer = selectedButton.textContent.trim();
+                selectedAnswer = selectedButton.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, ''); // Get text without icon if already marked
                 answers[question] = selectedAnswer;
-                
+
                 if (selectedAnswer === correctAnswer) {
-                    // Correct answer - add green checkmark
-                    selectedButton.classList.add('btn-success', 'text-white');
-                    selectedButton.innerHTML = `${selectedAnswer} <i class="bi bi-check-circle-fill"></i>`;
+                    isCorrect = true;
                     score++;
-                } else {
-                    // Incorrect answer - add red cross
-                    selectedButton.classList.add('btn-danger', 'text-white');
-                    selectedButton.innerHTML = `${selectedAnswer} <i class="bi bi-x-circle-fill"></i>`;
-                    
-                    // Show correct answer in green
-                    const correctButton = Array.from(document.querySelectorAll(`[data-question="${question}"]`))
-                        .find(btn => btn.textContent.trim() === correctAnswer);
-                    if (correctButton) {
-                        correctButton.classList.add('btn-success', 'text-white');
-                        correctButton.innerHTML = `${correctAnswer} <i class="bi bi-check-circle-fill"></i>`;
-                    }
                 }
+            } else {
+                 answers[question] = null; // Record that no answer was selected
             }
+
+            // Apply visual feedback after collecting answers
+            document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
+                 const buttonText = btn.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, ''); // Get text without icon
+                 btn.classList.remove('active', 'crossed-out', 'btn-success', 'btn-danger', 'text-white'); // Clear previous states
+
+                 if (btn === selectedButton) { // If this was the selected button
+                     if (isCorrect) {
+                        btn.classList.add('btn-success', 'text-white');
+                        btn.innerHTML = `${buttonText} <i class="bi bi-check-circle-fill"></i>`;
+                     } else {
+                        btn.classList.add('btn-danger', 'text-white');
+                        btn.innerHTML = `${buttonText} <i class="bi bi-x-circle-fill"></i>`;
+                     }
+                 } else if (buttonText === correctAnswer) { // If this is the correct answer (and wasn't selected)
+                      btn.classList.add('btn-outline-success'); // Highlight correct answer subtly if missed
+                 } else {
+                      // Keep other buttons as default outline
+                      btn.classList.add('btn-outline-primary');
+                 }
+                 // Ensure button text isn't accidentally crossed out after feedback
+                 btn.style.textDecoration = 'none'; 
+            });
         });
+
 
         // Send answers to server
         console.log('Sending answers:', answers);
         console.log('Score:', score);
-        
+
         fetch('/reading/paired-text/submit', {
             method: 'POST',
             headers: {
@@ -265,10 +313,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Answers saved successfully');
             } else {
                 console.error('Error saving answers:', data.message);
+                alert('There was an error submitting your answers. Please try again.');
+                 // Re-enable buttons if submission failed
+                 this.disabled = false;
+                 buttons.forEach(btn => btn.disabled = false);
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('There was an network error submitting your answers. Please check your connection and try again.');
+             // Re-enable buttons on network error
+             this.disabled = false;
+             buttons.forEach(btn => btn.disabled = false);
         });
     });
 });

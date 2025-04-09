@@ -90,14 +90,19 @@ async function submitRecording(audioBlob) {
     if (isSubmitting) return;
     isSubmitting = true;
 
-    const formData = new FormData();
-    formData.append('audio_file', audioBlob);
-    formData.append('stage', currentStage === 'speaking' ? 'main' : 'followup');
-
     try {
+        updateSubmitButton('manual');
+        
+        const formData = new FormData();
+        formData.append('audio_file', audioBlob);
+        formData.append('stage', currentStage === 'speaking' ? 'main' : 'followup');
+        formData.append('timestamp', Date.now());
+
+        console.log(`Submitting ${currentStage} recording with stage: ${formData.get('stage')}`);
         const response = await fetch('/speaking/speaking_task_3_submit', {
             method: 'POST',
-            body: formData
+            body: formData,
+            cache: 'no-cache'
         });
         
         if (!response.ok) {
@@ -106,16 +111,53 @@ async function submitRecording(audioBlob) {
         
         const data = await response.json();
         
+        if (!data.success) {
+            throw new Error('Submission was not successful');
+        }
+
+        console.log(`Successfully submitted ${currentStage} recording`);
+        
         if (currentStage === 'speaking') {
+            console.log('Moving to follow-up video...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
             await playNextVideo();
         } else if (currentStage === 'followup') {
-            window.location.href = '/speaking/speaking_task_3_feedback';
+            console.log('Redirecting to feedback page...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            window.location.href = `/speaking/speaking_task_3_feedback?t=${Date.now()}`;
         }
     } catch (error) {
         console.error('Error:', error);
         alert('There was an error submitting your recording. Please try again.');
+        updateSubmitButton('reset');
     } finally {
         isSubmitting = false;
+    }
+}
+
+function updateSubmitButton(state) {
+    const submitButton = document.getElementById('submitButton');
+    
+    switch(state) {
+        case 'manual':
+            submitButton.className = 'btn btn-warning';
+            submitButton.textContent = 'Submitting response, please wait...';
+            submitButton.disabled = true;
+            break;
+        case 'auto':
+            submitButton.className = 'btn btn-warning';
+            submitButton.textContent = 'Submitting response, please wait...';
+            submitButton.disabled = true;
+            break;
+        case 'reset':
+            submitButton.className = 'btn btn-primary';
+            submitButton.textContent = 'Submit Recording Early';
+            submitButton.disabled = false;
+            break;
+        default:
+            submitButton.className = 'btn btn-primary';
+            submitButton.textContent = 'Submit Recording Early';
+            submitButton.disabled = false;
     }
 }
 
@@ -138,13 +180,17 @@ async function playNextVideo() {
         videoElement.play();
         updateProgress(currentStage);
 
+        // Hide recording interface and reset button state
+        recordingInterface.style.display = 'none';
+        updateSubmitButton('reset');
+
         // Set up recording based on the stage
         if (currentStage === 'speaking') {
             recordingInterface.style.display = 'none';
             // Wait 4 seconds before starting the recording
             await new Promise(resolve => {
                 recordingStartTimeout = setTimeout(async () => {
-                    await startRecording(62); // 1 minute and 2 seconds
+                    await startRecording(60); // 1 minute
                     resolve();
                 }, 4000); // 4 seconds delay
             });
@@ -153,7 +199,7 @@ async function playNextVideo() {
             // Wait 8 seconds before starting the recording
             await new Promise(resolve => {
                 recordingStartTimeout = setTimeout(async () => {
-                    await startRecording(32); // 32 seconds
+                    await startRecording(30); // 30 seconds
                     resolve();
                 }, 8000); // 8 seconds delay
             });
@@ -163,15 +209,26 @@ async function playNextVideo() {
 
 // Event listeners
 videoElement.addEventListener('ended', async () => {
-    if (currentStage !== 'followup') {
+    if (currentStage === 'intro' || currentStage === 'prompt') {
         await playNextVideo();
+    } else if (currentStage === 'speaking' && mediaRecorder && mediaRecorder.state === 'recording') {
+        // If speaking video ends while still recording, let the recording timeout handle it
+        console.log('Speaking video ended, waiting for recording to complete...');
     }
+    // Don't automatically play followup video - it will be played after submission completes
 });
 
 submitButton.addEventListener('click', () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
-        clearTimeout(recordingTimeout);
+        updateSubmitButton('manual');
+        // Clear the recording timeout
+        if (recordingTimeout) {
+            clearTimeout(recordingTimeout);
+        }
+        // Stop the recording
         mediaRecorder.stop();
+        // Stop all tracks in the stream
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
     }
 });
 

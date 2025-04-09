@@ -191,7 +191,7 @@ async function playNextVideo() {
             
             await new Promise(resolve => {
                 recordingStartTimeout = setTimeout(async () => {
-                    await startRecording(35); // 35 seconds recording time
+                    await startRecording(32); // 32 seconds recording time
                     resolve();
                 }, delay);
             });
@@ -220,7 +220,7 @@ function updateSubmitButton(state) {
             break;
         case 'auto':
             submitButton.className = 'btn btn-warning';
-            submitButton.textContent = 'Time\'s up! Submitting response...';
+            submitButton.textContent = 'Submitting response, please wait...';
             submitButton.disabled = true;
             break;
         case 'reset':

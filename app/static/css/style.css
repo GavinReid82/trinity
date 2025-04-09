@@ -241,3 +241,9 @@ footer {
     background-color: white;
     border: 2px solid #ffd700;
 } 
+
+.crossed-out {
+    text-decoration: line-through;
+    opacity: 0.6; /* Make it slightly greyed out */
+    background-color: #e9ecef; /* Optional: slight background change */
+}

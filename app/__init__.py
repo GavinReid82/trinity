@@ -40,6 +40,10 @@ def create_app():
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(tips_bp)
 
+    with app.app_context():
+        from app.blueprints.speaking.routes import init_speaking_tasks
+        init_speaking_tasks()
+
     return app
 
 @login_manager.user_loader
