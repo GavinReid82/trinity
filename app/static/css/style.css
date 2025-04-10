@@ -247,3 +247,10 @@ footer {
     opacity: 0.6; /* Make it slightly greyed out */
     background-color: #e9ecef; /* Optional: slight background change */
 }
+
+.selected-answer-feedback {
+    background-color: #ffeeb4;  /* Light yellow background */
+    border: 4px solid #666;
+    color: black;
+    font-weight: normal;
+}

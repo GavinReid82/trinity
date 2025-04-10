@@ -14,8 +14,8 @@
 
 <h2 class="text-center mt-5">Feedback</h2>
 <div class="mt-4 mx-auto" style="max-width: 800px;">
-    <p class="text-muted"><strong>General Comment:</strong></p>
-    <p>{{ general_comment }}</p>
+    <!-- <p class="text-muted"><strong>General Comment:</strong></p>
+    <p>{{ general_comment }}</p> -->
 
     <p class="text-muted"><strong>What You Did Well:</strong></p>
     <ul>
@@ -24,7 +24,7 @@
         {% endfor %}
     </ul>
 
-    <p class="text-muted"><strong>What You Could Improve:</strong></p>
+    <p class="text-muted"><strong>To Improve:</strong></p>
     <ul>
         {% for point in could_improve %}
             <li>{{ point.replace('- ', '') }}</li>
@@ -32,7 +32,9 @@
     </ul>
 </div>
 
-<div class="d-grid gap-2 col-6 mx-auto mt-4">
-    <a href="{{ url_for('writing.writing_home') }}" class="btn btn-secondary">Return to Writing Overview</a>
+<div class="text-center mt-4 mb-5">
+    <a href="{{ url_for('writing.writing_task_1_direct_communication') }}" class="btn btn-primary">Try This Task Again</a>
+    <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-secondary">Home</a>
+    <a href="{{ url_for('writing.writing_task_1_group_chat') }}" class="btn btn-primary btn-lg">Go to Next Task</a>
 </div>
 {% endblock %}

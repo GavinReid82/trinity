@@ -4,10 +4,11 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row mb-4">
-        <!-- Left column: Instructions -->
-        <div class="col-md-6">
-            <div class="instructions-box h-100 card" style="border: 1px solid #000; border-radius: 0;">
+    <div class="row">
+        <!-- Left column: Instructions and Texts -->
+        <div class="col-md-6" style="height: calc(100vh - 100px); overflow-y: auto;">
+            <!-- Instructions -->
+            <div class="instructions-box card mb-4" style="border: 1px solid #000; border-radius: 0;">
                 <div class="card-body">
                     <h2>Instructions</h2>
                     <div class="alert alert-info">
@@ -21,34 +22,13 @@
                     <p>⚠️ You should write about 250 words (maximum 300 words).</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Right column: Task -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h2>Task</h2>
-                    <p>Write a formal essay for your course tutor, developing an argument on the following topic:</p>
-                    <div class="alert alert-primary">
-                        <p class="mb-0"><strong>Some people believe that in the future everyone will live in high-rise buildings. To what extent do you agree or disagree?</strong></p>
-                    </div>
-                    <div class="alert alert-warning">
-                        <p>◗ You MUST use ideas from the texts AND your own ideas.</p>
-                        <p>◗ You MUST NOT copy from the texts.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <!-- Left column: Source Texts -->
-        <div class="col-md-6">
-            <div class="card h-100">
+            <!-- Source Texts -->
+            <div class="card">
                 <div class="card-header">
                     <h3>Source Texts</h3>
                 </div>
-                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
+                <div class="card-body">
                     <div class="mb-4">
                         <h4>Text A</h4>
                         <h5>Book summary</h5>
@@ -63,7 +43,7 @@
                         <p class="text-muted"><i>Reimagining Home</i></p>
                         <p>We continue our series on Reimagining Home. Last month, we looked at co-housing communities and why more people are sharing their living space. This month, we ask a different question: can high-rise buildings feel like home?</p>
                         <p>A recent satisfaction survey revealed that, while high-rise apartments are seen as convenient and good value for money, they are still thought to be smaller, noisier, and less safe than houses.</p>
-                        <p>A new project in Westchester City, England may start to change people’s minds. The architects of ‘Rose Park Towers’ say that their development shows that high-rise living is moving away from the lonely grey concrete blocks of the past.</p>
+                        <p>A new project in Westchester City, England may start to change people's minds. The architects of 'Rose Park Towers' say that their development shows that high-rise living is moving away from the lonely grey concrete blocks of the past.</p>
                         <p>The buildings are certainly beautiful, with four ten-storey towers of rose-coloured glass offering wide views of the city. Neighbours can meet and relax in the rooftop gardens. The development also has its own supermarket, gym, two restaurants, and friendly security staff. Most residents here are happy with their accommodation, despite the surprisingly high price. As a luxury development, some Rose Parks apartments cost just as much as a house in the suburbs.</p>
                         <p>The government has praised the project for its ecological design and is now planning to use similar solutions which use solar energy and sustainable materials to other urban infrastructure.</p>
                     </div>
@@ -71,13 +51,29 @@
             </div>
         </div>
 
-        <!-- Right column: Writing Area -->
-        <div class="col-md-6">
-            <div class="card h-100">
+        <!-- Right column: Task and Writing Area -->
+        <div class="col-md-6" style="height: calc(100vh - 100px); overflow-y: auto;">
+            <!-- Task -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2>Task</h2>
+                    <p>Write a formal essay for your course tutor, developing an argument on the following topic:</p>
+                    <div class="alert alert-primary">
+                        <p class="mb-0"><strong>Some people believe that in the future everyone will live in high-rise buildings. To what extent do you agree or disagree?</strong></p>
+                    </div>
+                    <div class="alert alert-warning">
+                        <p>◗ You MUST use ideas from the texts AND your own ideas.</p>
+                        <p>◗ You MUST NOT copy from the texts.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Writing Area -->
+            <div class="card">
                 <div class="card-header">
                     <h3>Your Essay</h3>
                 </div>
-                <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto;">
+                <div class="card-body">
                     <form method="POST" action="{{ url_for('writing.writing_task_2_essay_submit') }}">
                         <div class="mb-4">
                             <label for="writingTask2essay" class="form-label">Your Essay</label>

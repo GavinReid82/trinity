@@ -118,7 +118,7 @@ def writing_task_1_submit():
     db.session.commit()
     
     return render_template(
-        'writing/writing_task_1_feedback.html',
+        'writing/writing_task_1_group_chat_feedback.html',
         response=response,
         general_comment=feedback.get('general_comment', ''),
         did_well=feedback.get('did_well', []),
@@ -195,7 +195,7 @@ def writing_task_1_direct_communication_submit():
     db.session.commit()
     
     return render_template(
-        'writing/writing_task_1_feedback.html',
+        'writing/writing_task_1_direct_communication_feedback.html',
         response=response,
         general_comment=feedback.get('general_comment', ''),
         did_well=feedback.get('did_well', []),

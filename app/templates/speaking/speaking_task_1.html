@@ -8,7 +8,7 @@
 <div class="container mt-4">
     <div id="taskContainer">
         <!-- Video player -->
-        <video id="taskVideo" class="w-100 mb-3" controls>
+        <video id="taskVideo" class="w-100 mb-3" autoplay>
             <source id="videoSource" src="" type="video/mp4">
             Your browser does not support the video element.
         </video>
@@ -18,9 +18,9 @@
             <button id="submitButton" class="btn btn-primary">Submit Recording Early</button>
         </div>
 
-        <!-- Progress indicator -->
-        <div class="progress mb-3">
-            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+        <!-- Progress indicator (present but hidden) -->
+        <div class="progress mb-3" style="display: none;">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
 </div>
@@ -204,8 +204,9 @@ videoElement.addEventListener('ended', async () => {
     if (currentStage === 'intro') {
         await playNextVideo();
     } else if (currentStage.startsWith('Q') && mediaRecorder && mediaRecorder.state === 'recording') {
-        // If the video ends while still recording, let the recording timeout handle it
+        // If the video ends while still recording, just wait for the recording to complete
         console.log('Video ended, waiting for recording to complete...');
+        // Don't auto-restart the video
     }
 });
 
@@ -259,5 +260,25 @@ window.addEventListener('beforeunload', () => {
 
 // Start with the intro video
 videoElement.src = videos.intro;
+videoElement.controls = false; // Remove controls
+videoElement.autoplay = true;  // Ensure autoplay is enabled
+
+// Disable seeking by capturing and preventing timeupdate events
+videoElement.addEventListener('timeupdate', () => {
+    if (videoElement.currentTime > 0.1) {
+        videoElement.removeAttribute('controls');
+    }
+});
+
+// Prevent users from pausing the video
+videoElement.addEventListener('pause', (e) => {
+    // Only auto-play again if it's not at the end of the video
+    if (currentStage !== 'completed' && videoElement.currentTime < videoElement.duration - 0.1) {
+        videoElement.play();
+    }
+});
+
+// Add this to ensure video doesn't loop
+videoElement.loop = false;
 </script>
 {% endblock %}

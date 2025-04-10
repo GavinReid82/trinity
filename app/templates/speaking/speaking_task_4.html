@@ -8,7 +8,7 @@
 <div class="container mt-4">
     <div id="taskContainer">
         <!-- Video player -->
-        <video id="taskVideo" class="w-100 mb-3" controls>
+        <video id="taskVideo" class="w-100 mb-3" autoplay>
             <source id="videoSource" src="" type="video/mp4">
             Your browser does not support the video element.
         </video>
@@ -18,9 +18,9 @@
             <button id="submitButton" class="btn btn-primary">Submit Recording Early</button>
         </div>
 
-        <!-- Progress indicator -->
-        <div class="progress mb-3">
-            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+        <!-- Progress indicator (present but hidden) -->
+        <div class="progress mb-3" style="display: none;">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
 </div>

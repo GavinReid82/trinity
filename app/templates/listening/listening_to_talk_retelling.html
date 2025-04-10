@@ -170,6 +170,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle submit button click
     document.getElementById('submitBtn').addEventListener('click', function() {
+        // Check if all questions have been answered
+        const totalQuestions = Object.keys(correctAnswers).length;
+        const answeredQuestions = document.querySelectorAll('.btn-outline-primary.active').length;
+        
+        if (answeredQuestions < totalQuestions) {
+            alert(`Please answer all questions before submitting. You have answered ${answeredQuestions} of ${totalQuestions} questions.`);
+            return; // Stop execution and don't submit
+        }
+        
         // Disable the submit button
         this.disabled = true;
         // Disable all answer buttons after submission
@@ -200,8 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const isSelected = btn.classList.contains('active');
                 const isCorrect = (buttonText === correctAnswer);
 
-                // Clear ALL previous styles, including crossed-out
-                btn.classList.remove('active', 'crossed-out', 'btn-success', 'btn-danger', 'text-white', 'btn-outline-success', 'btn-outline-primary', 'selected-answer-feedback');
+                // Clear previous styles but keep the active class
+                btn.classList.remove('crossed-out', 'btn-success', 'btn-danger', 'text-white', 'btn-outline-success', 'btn-outline-primary', 'selected-answer-feedback');
                 // Reset icon/text
                 btn.innerHTML = buttonText;
                 // Explicitly remove text decoration
@@ -209,14 +218,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Apply new styles based on selection and correctness
                 if (isSelected) {
-                    // User's selected answer - keep yellow highlight
-                    btn.classList.add('selected-answer-feedback'); // Adds yellow bg, black text, specific border
+                    // User's selected answer - use the selected-answer-feedback class for yellow background
+                    btn.classList.add('selected-answer-feedback');
                     if (isCorrect) {
                         // Correct selection
-                         btn.innerHTML = `${buttonText} <i class="bi bi-check-circle-fill text-success"></i>`; // Green check
+                        btn.innerHTML = `${buttonText} <i class="bi bi-check-circle-fill text-success"></i>`; // Green check
                     } else {
                         // Incorrect selection
-                         btn.innerHTML = `${buttonText} <i class="bi bi-x-circle-fill text-danger"></i>`; // Red cross
+                        btn.innerHTML = `${buttonText} <i class="bi bi-x-circle-fill text-danger"></i>`; // Red cross
                     }
                 } else if (isCorrect) {
                     // The correct answer, but wasn't selected by user

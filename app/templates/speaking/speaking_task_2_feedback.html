@@ -11,7 +11,7 @@
         <div class="col-md-6">
             <div class="card h-100 bg-light">
                 <div class="card-header">
-                    <h3>Main Response (2 minutes)</h3>
+                    <h3>Your topic presentation</h3>
                 </div>
                 <div class="card-body">
                     <h4>Your Response:</h4>
@@ -28,7 +28,7 @@
                         {% endfor %}
                     </ul>
 
-                    <h4>What You Could Improve:</h4>
+                    <h4>To Improve:</h4>
                     <ul>
                         {% for point in main_feedback.can_improve %}
                         <li>{{ point }}</li>
@@ -43,7 +43,7 @@
         <div class="col-md-6">
             <div class="card h-100 bg-light">
                 <div class="card-header">
-                    <h3>Follow-up Response (30 seconds)</h3>
+                    <h3>Follow-up Response</h3>
                 </div>
                 <div class="card-body">
                     <h4>Follow-up Question:</h4>
@@ -64,7 +64,7 @@
                         {% endfor %}
                     </ul>
 
-                    <h4>What You Could Improve:</h4>
+                    <h4>To Improve:</h4>
                     <ul>
                         {% for point in follow_up_feedback.can_improve %}
                         <li>{{ point }}</li>
@@ -78,9 +78,9 @@
     </div>
 
     <div class="text-center my-4">
-        <a href="{{ url_for('speaking.speaking_task_2') }}" class="btn btn-primary">Try Again</a>
-        <a href="{{ url_for('speaking.speaking_home') }}" class="btn btn-secondary">Back to Speaking</a>
-        <a href="{{ url_for('speaking.speaking_task_3') }}" class="btn btn-primary btn-lg">Next: Interacting</a>
+        <a href="{{ url_for('speaking.speaking_task_2') }}" class="btn btn-primary">Try This Task Again</a>
+        <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-secondary">Home</a>
+        <a href="{{ url_for('speaking.speaking_task_3') }}" class="btn btn-primary btn-lg">Go to Next Task</a>
     </div>
 </div>
 {% endblock %}

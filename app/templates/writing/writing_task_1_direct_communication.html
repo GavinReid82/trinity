@@ -3,7 +3,7 @@
 {% block title %}Writing Task{% endblock %}
 
 {% block content %}
-<h1 class="text-center">Written online communication</h1>
+<h1 class="page-title">Written online communication <img src="{{ url_for('static', filename='images/writing.jpg') }}" alt="Writing icon" class="title-icon"></h1>
 <!-- <p class="text-muted text-center">Please complete the writing task below and submit your response.</p> -->
 
 <div class="container my-4">
@@ -27,80 +27,13 @@
       </div>
     </div>
 
-    <!-- Email Interface -->
+    <!-- Replace Email Interface with Image -->
     <div class="col-md-12">
-      <div class="card">
-          <div class="card-body p-0">
-              <div class="row g-0">
-                  <!-- Left Navigation Menu -->
-                  <div class="col-md-3 border-end bg-light">
-                      <div class="p-3">
-                          <ul class="list-unstyled">
-                              <li class="mb-2">
-                                  <a href="#" class="text-decoration-none text-dark">
-                                      <i class="fa-solid fa-pen"></i> Compose
-                                  </a>
-                              </li>
-                              <li class="mb-2">
-                                  <a href="#" class="text-decoration-none text-dark d-flex justify-content-between">
-                                      <span><i class="fa-solid fa-inbox"></i> Inbox</span>
-                                      <span>1</span>
-                                  </a>
-                              </li>
-                              <li class="mb-2">
-                                  <a href="#" class="text-decoration-none text-dark">
-                                      <i class="fa-solid fa-paper-plane"></i> Sent
-                                  </a>
-                              </li>
-                              <li class="mb-2">
-                                  <a href="#" class="text-decoration-none text-dark">
-                                      <i class="fa-solid fa-file"></i> Drafts
-                                  </a>
-                              </li>
-                              <li>
-                                  <a href="#" class="text-decoration-none text-dark">
-                                      <i class="fa-solid fa-chevron-down"></i> More
-                                  </a>
-                              </li>
-                          </ul>
-                      </div>
-                  </div>
-
-                  <!-- Email Content -->
-                  <div class="col-md-9">
-                      <div class="p-4">
-                          <!-- Email Header -->
-                          <div class="d-flex align-items-center mb-4">
-                              <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
-                                   style="width: 45px; height: 45px;">
-                                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#6c757d">
-                                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4zm6 5H6v-.99c.2-.72 3.3-2.01 6-2.01s5.8 1.29 6 2v1z"/>
-                                  </svg>
-                              </div>
-                              <div class="ms-3">
-                                  <div style="font-size: 1.1rem;">
-                                      <strong>Library services</strong> &lt;library@school.com&gt;
-                                  </div>
-                                  <div class="text-muted">Yesterday, 19:02</div>
-                              </div>
-                          </div>
-                          
-                          <!-- Email Content -->
-                          <div class="mb-4" style="font-size: 1.1rem;">
-                              <p class="mb-3">Dear student,</p>
-                              <p class="mb-3">You recently used one of our study rooms. Please help us improve by telling us about your experience.</p>
-                              <p class="mb-0">Kind regards,<br>Library Services</p>
-                          </div>
-
-                          <!-- Email Actions -->
-                          <div class="mt-4">
-                              <button class="btn btn-light me-2" style="border: 1px solid #dee2e6;">Reply</button>
-                              <button class="btn btn-light" style="border: 1px solid #dee2e6;">Forward</button>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+      <div class="card mb-4">
+        <div class="card-body p-0">
+          <img src="{{ url_for('static', filename='images/direct-comm.png') }}" alt="Email from Library Services" 
+               class="img-fluid" style="max-width: 600px; margin: 0 auto; display: block; border: 2px solid #e9d5e9; border-radius: 4px;">
+        </div>
       </div>
     </div>
   </div>

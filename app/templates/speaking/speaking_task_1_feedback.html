@@ -33,7 +33,7 @@
                     {% endfor %}
                 </ul>
 
-                <h4 class="text-dark">What You Could Improve:</h4>
+                <h4 class="text-dark">To Improve:</h4>
                 <ul>
                     {% for point in feedback.feedback.can_improve %}
                         <li>{{ point }}</li>
@@ -46,8 +46,8 @@
 {% endfor %}
 
 <div class="text-center mt-4 mb-5">
-    <a href="{{ url_for('speaking.speaking_task_1_q1') }}" class="btn btn-primary">Try Again</a>
-    <a href="{{ url_for('speaking.speaking_home') }}" class="btn btn-secondary">Return to Speaking Overview</a>
-    <a href="{{ url_for('speaking.speaking_task_2') }}" class="btn btn-primary btn-lg">Next: Delivering a prepared talk</a>
+    <a href="{{ url_for('speaking.speaking_task_1_q1') }}" class="btn btn-primary">Try This Task Again</a>
+    <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-secondary">Home</a>
+    <a href="{{ url_for('speaking.speaking_task_2') }}" class="btn btn-primary btn-lg">Go to Next Task</a>
 </div>
 {% endblock %}

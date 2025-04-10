@@ -7,8 +7,8 @@
 
 <div class="container mt-4">
     <div id="taskContainer">
-        <!-- Video player -->
-        <video id="taskVideo" class="w-100 mb-3" controls>
+        <!-- Video player: Removed muted attribute -->
+        <video id="taskVideo" class="w-100 mb-3" autoplay playsinline>
             <source id="videoSource" src="" type="video/mp4">
             Your browser does not support the video element.
         </video>
@@ -18,9 +18,9 @@
             <button id="submitButton" class="btn btn-primary">Submit Recording Early</button>
         </div>
 
-        <!-- Progress indicator -->
-        <div class="progress mb-3">
-            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+        <!-- Progress indicator (present but hidden) -->
+        <div class="progress mb-3" style="display: none;">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
 </div>
@@ -44,6 +44,9 @@ const videoElement = document.getElementById('taskVideo');
 const recordingInterface = document.getElementById('recordingInterface');
 const submitButton = document.getElementById('submitButton');
 const progressBar = document.getElementById('progressBar');
+
+// Ensure the video element is muted for autoplay policies - REMOVED
+// videoElement.muted = true;
 
 function updateProgress(stage) {
     const progress = {
@@ -177,7 +180,13 @@ async function playNextVideo() {
     if (nextStage) {
         currentStage = nextStage;
         videoElement.src = videos[currentStage];
-        videoElement.play();
+        // Play the video programmatically since controls are removed
+        try {
+            await videoElement.play();
+        } catch (error) {
+            console.error("Error attempting to play video:", error);
+            // Handle autoplay restrictions if necessary (e.g., show a play button)
+        }
         updateProgress(currentStage);
 
         // Hide recording interface and reset button state
@@ -245,7 +254,9 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// Start with the first video
+// Start with the first video (autoplay handles the initial play)
 videoElement.src = videos.intro;
+// The 'autoplay' attribute will handle playing the first video.
+// We set the source here to load it.
 </script>
 {% endblock %}

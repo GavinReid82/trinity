@@ -190,41 +190,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const buttons = document.querySelectorAll('.btn-outline-primary');
     buttons.forEach(button => {
-        // Handle LEFT-click to select answer OR Control/Cmd-Click to cross out
+        // Handle LEFT-click for selecting answers
         button.addEventListener('click', function(e) {
             const question = this.dataset.question;
-
+            
             // Check if Control key (or Command key on Mac) was pressed
             if (e.ctrlKey || e.metaKey) {
-                e.preventDefault(); // Prevent any default browser action for ctrl/cmd click
-
-                // Logic for crossing out (only if not the selected answer)
-                if (!this.classList.contains('active')) {
-                    this.classList.toggle('crossed-out');
-                }
-                // Stop processing here for ctrl/cmd click
+                // This part isn't working as expected, so we'll remove it
                 return;
             }
-
-            // --- Normal Click Logic (No modifier key pressed) ---
-
-            // Remove 'active' class from all buttons in this question group
-            // ** BUT LEAVE 'crossed-out' ALONE on other buttons **
+            
+            // Standard click behavior - select the answer
             document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
                 btn.classList.remove('active');
-                // REMOVED: btn.classList.remove('crossed-out'); // DON'T DO THIS HERE
             });
-
-            // Add 'active' class to the clicked button
+            
             this.classList.add('active');
-            // Ensure the newly selected button is definitely NOT crossed out
             this.classList.remove('crossed-out');
-
         });
-
-        // Handle RIGHT-click (or Control-click on Mac) to toggle cross out - Use this if the click handler above doesn't work well
-        // Ensure you only have ONE method (either the combined click listener above OR this contextmenu one)
-        /*
+        
+        // Add dedicated right-click handler for crossing out options
         button.addEventListener('contextmenu', function(e) {
             e.preventDefault(); // Prevent browser context menu
             
@@ -233,14 +218,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 return; 
             }
             
-            // Toggle the crossed-out class (requires CSS rule)
-            this.classList.toggle('crossed-out'); 
+            // Toggle the crossed-out class
+            this.classList.toggle('crossed-out');
         });
-        */
     });
 
     // Handle submit button click
     document.getElementById('submitBtn').addEventListener('click', function() {
+        // Check if all questions have an answer selected
+        const totalQuestions = Object.keys(correctAnswers).length;
+        const answeredQuestions = document.querySelectorAll('.btn-outline-primary.active').length;
+        
+        if (answeredQuestions < totalQuestions) {
+            // Show alert message
+            alert(`Please answer all questions before submitting. You've answered ${answeredQuestions} out of ${totalQuestions} questions.`);
+            return; // Stop execution and don't submit
+        }
+        
         // Disable the submit button
         this.disabled = true;
         // Disable all answer buttons after submission
@@ -249,48 +243,54 @@ document.addEventListener('DOMContentLoaded', function() {
         let score = 0;
         const answers = {};
 
-        // Check each question
-        Object.entries(correctAnswers).forEach(([question, correctAnswer]) => {
+        // --- Stage 1: Collect Answers ---
+        Object.keys(correctAnswers).forEach(question => {
             const selectedButton = document.querySelector(`[data-question="${question}"].active`);
-            let isCorrect = false;
-            let selectedAnswer = null;
-
             if (selectedButton) {
-                selectedAnswer = selectedButton.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, ''); // Get text without icon if already marked
+                const selectedAnswer = selectedButton.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, '');
                 answers[question] = selectedAnswer;
-
-                if (selectedAnswer === correctAnswer) {
-                    isCorrect = true;
+                if (selectedAnswer === correctAnswers[question]) {
                     score++;
                 }
             } else {
-                 answers[question] = null; // Record that no answer was selected
+                answers[question] = null;
             }
-
-            // Apply visual feedback after collecting answers
-            document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
-                 const buttonText = btn.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, ''); // Get text without icon
-                 btn.classList.remove('active', 'crossed-out', 'btn-success', 'btn-danger', 'text-white'); // Clear previous states
-
-                 if (btn === selectedButton) { // If this was the selected button
-                     if (isCorrect) {
-                        btn.classList.add('btn-success', 'text-white');
-                        btn.innerHTML = `${buttonText} <i class="bi bi-check-circle-fill"></i>`;
-                     } else {
-                        btn.classList.add('btn-danger', 'text-white');
-                        btn.innerHTML = `${buttonText} <i class="bi bi-x-circle-fill"></i>`;
-                     }
-                 } else if (buttonText === correctAnswer) { // If this is the correct answer (and wasn't selected)
-                      btn.classList.add('btn-outline-success'); // Highlight correct answer subtly if missed
-                 } else {
-                      // Keep other buttons as default outline
-                      btn.classList.add('btn-outline-primary');
-                 }
-                 // Ensure button text isn't accidentally crossed out after feedback
-                 btn.style.textDecoration = 'none'; 
-            });
         });
 
+        // --- Stage 2: Apply Visual Feedback ---
+        Object.entries(correctAnswers).forEach(([question, correctAnswer]) => {
+            document.querySelectorAll(`[data-question="${question}"]`).forEach(btn => {
+                const buttonText = btn.textContent.trim().replace(/ <i class="bi.*"><\/i>$/, ''); // Get text without icon
+                const isSelected = btn.classList.contains('active');
+                const isCorrect = (buttonText === correctAnswer);
+
+                // Clear previous styles (but don't remove active class)
+                btn.classList.remove('crossed-out', 'btn-success', 'btn-danger', 'text-white', 'btn-outline-success', 'btn-outline-primary', 'selected-answer-feedback');
+                // Reset icon/text
+                btn.innerHTML = buttonText;
+                // Explicitly remove text decoration
+                btn.style.textDecoration = 'none';
+
+                // Apply new styles based on selection and correctness
+                if (isSelected) {
+                    // User's selected answer - add a special class for highlighting
+                    btn.classList.add('selected-answer-feedback'); // Yellow bg class (add to CSS if missing)
+                    if (isCorrect) {
+                        // Correct selection
+                        btn.innerHTML = `${buttonText} <i class="bi bi-check-circle-fill text-success"></i>`; // Green check
+                    } else {
+                        // Incorrect selection
+                        btn.innerHTML = `${buttonText} <i class="bi bi-x-circle-fill text-danger"></i>`; // Red cross
+                    }
+                } else if (isCorrect) {
+                    // The correct answer, but wasn't selected by user
+                    btn.classList.add('btn-outline-success'); // Green outline
+                } else {
+                    // Incorrect answer, not selected by user
+                    btn.classList.add('btn-outline-primary'); // Standard outline
+                }
+            });
+        });
 
         // Send answers to server
         console.log('Sending answers:', answers);
